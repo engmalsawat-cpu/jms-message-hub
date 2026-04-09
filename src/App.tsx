@@ -22,6 +22,8 @@ import Financial from "./pages/Financial";
 import Blacklist from "./pages/Blacklist";
 import OperationsDashboard from "./pages/OperationsDashboard";
 import Profile from "./pages/Profile";
+import ReviewerDashboard from "./pages/ReviewerDashboard";
+import ReviewForm from "./pages/ReviewForm";
 import SeedUsers from "./pages/SeedUsers";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="/blacklist" element={<Blacklist />} />
               <Route path="/operations" element={<OperationsDashboard />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/reviewer" element={<ReviewerDashboard />} />
+              <Route path="/review/:requestId" element={<ReviewForm />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

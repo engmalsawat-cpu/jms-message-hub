@@ -53,6 +53,7 @@ export default {
     submitPaper: "تقديم بحث",
     blacklist: "القائمة السوداء",
     operations: "لوحة التشغيل",
+    reviewer: "لوحة المحكم",
   },
   papers: {
     title: "الأبحاث",
