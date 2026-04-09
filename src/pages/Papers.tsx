@@ -34,7 +34,7 @@ export default function Papers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("papers")
-        .select("*, journals(title_ar, title_en), workflow_stages(name_ar, name_en), profiles!papers_submitted_by_fkey(full_name, email)")
+        .select("*, journals(title_ar, title_en), workflow_stages(name_ar, name_en)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -85,7 +85,6 @@ export default function Papers() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{isAr ? t("papers.titleAr") : t("papers.titleEn")}</TableHead>
-                  <TableHead>{isAr ? "الباحث" : "Researcher"}</TableHead>
                   <TableHead>{t("journals.title")}</TableHead>
                   <TableHead>{t("common.status")}</TableHead>
                   <TableHead>{isAr ? "المرحلة" : "Stage"}</TableHead>
@@ -98,7 +97,6 @@ export default function Papers() {
                     <TableCell className="font-medium">
                       {isAr ? paper.title_ar : paper.title_en}
                     </TableCell>
-                    <TableCell>{paper.profiles?.full_name || paper.profiles?.email}</TableCell>
                     <TableCell>{isAr ? paper.journals?.title_ar : paper.journals?.title_en}</TableCell>
                     <TableCell>
                       <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
