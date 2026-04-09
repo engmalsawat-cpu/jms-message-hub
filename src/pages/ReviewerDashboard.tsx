@@ -30,7 +30,7 @@ export default function ReviewerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("review_requests")
-        .select("*, papers(title_ar, title_en, abstract_ar, abstract_en, journal_id, journals(title_ar, title_en))")
+        .select("*, papers(title_ar, title_en, abstract_ar, abstract_en, journal_id, file_url, journals(title_ar, title_en))")
         .eq("reviewer_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -196,7 +196,7 @@ function PendingRequestCard({ request, isAr, onRespond, isPending }: any) {
 
 function ActiveReviewCard({ request, isAr }: any) {
   return (
-    <div className="border rounded-lg p-4">
+    <div className="border rounded-lg p-4 space-y-3">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-medium">{isAr ? request.papers?.title_ar : request.papers?.title_en}</h3>
@@ -210,6 +210,22 @@ function ActiveReviewCard({ request, isAr }: any) {
             </p>
           )}
         </div>
+      </div>
+      <div className="flex gap-2">
+        {request.papers?.file_url && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={async () => {
+              const { data } = await supabase.storage.from("papers").createSignedUrl(request.papers.file_url, 3600);
+              if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+            }}
+          >
+            <Eye className="h-4 w-4" />
+            {isAr ? "عرض الملف" : "View File"}
+          </Button>
+        )}
         <Link to={`/review/${request.id}`}>
           <Button size="sm" className="gap-2">
             <ClipboardCheck className="h-4 w-4" />

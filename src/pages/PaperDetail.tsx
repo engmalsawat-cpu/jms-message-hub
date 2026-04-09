@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   ArrowRight, ArrowLeft, Clock, CheckCircle, FileText,
-  UserPlus, Send, MessageSquare, AlertTriangle
+  UserPlus, Send, MessageSquare, AlertTriangle, Star, Eye, ClipboardCheck
 } from "lucide-react";
 import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 
@@ -80,13 +80,28 @@ export default function PaperDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("paper_stage_history")
-        .select("*, workflow_stages(name_ar, name_en)")
+        .select("*, workflow_stages(name_ar, name_en), profiles:performed_by(full_name)")
         .eq("paper_id", id!)
         .order("created_at", { ascending: true });
       if (error) throw error;
       return data;
     },
     enabled: !!id,
+  });
+
+  const { data: reviewReports = [] } = useQuery({
+    queryKey: ["paper-review-reports", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("review_reports")
+        .select("*, profiles:reviewer_id(full_name), criteria_scores(*, evaluation_criteria:criteria_id(name_ar, name_en, max_score))")
+        .eq("paper_id", id!)
+        .eq("is_submitted", true)
+        .order("submitted_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id && isEditor,
   });
 
   const { data: paperRoles } = useQuery({
@@ -382,9 +397,18 @@ export default function PaperDetail() {
               <Separator />
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">{t("papers.file")}</span>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={async () => {
+                    const { data } = await supabase.storage.from("papers").createSignedUrl(paper.file_url!, 3600);
+                    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                    else toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
+                  }}
+                >
                   <FileText className="h-4 w-4" />
-                  {isAr ? "عرض الملف" : "View File"}
+                  {isAr ? "تحميل الملف" : "Download File"}
                 </Button>
               </div>
             </>
@@ -395,6 +419,80 @@ export default function PaperDetail() {
       {/* Review Requests (Editor View) */}
       {isEditor && (
         <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
+      )}
+
+      {/* Review Reports (Editor View) */}
+      {isEditor && reviewReports.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5" />
+              {isAr ? "تقارير التحكيم المقدمة" : "Submitted Review Reports"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {reviewReports.map((report: any, idx: number) => {
+              const recColors: Record<string, string> = {
+                accept: "bg-green-100 text-green-800",
+                minor_revision: "bg-yellow-100 text-yellow-800",
+                major_revision: "bg-orange-100 text-orange-800",
+                reject: "bg-red-100 text-red-800",
+              };
+              const recLabels: Record<string, string> = isAr
+                ? { accept: "قبول", minor_revision: "تعديلات طفيفة", major_revision: "تعديلات جوهرية", reject: "رفض" }
+                : { accept: "Accept", minor_revision: "Minor Revision", major_revision: "Major Revision", reject: "Reject" };
+              return (
+                <div key={report.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-primary" />
+                      <span className="font-medium">{isAr ? `محكّم ${idx + 1}` : `Reviewer ${idx + 1}`}</span>
+                      <span className="text-sm text-muted-foreground">({report.profiles?.full_name})</span>
+                    </div>
+                    {report.recommendation && (
+                      <Badge className={recColors[report.recommendation] || ""}>
+                        {recLabels[report.recommendation] || report.recommendation}
+                      </Badge>
+                    )}
+                  </div>
+                  {report.criteria_scores?.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">{isAr ? "الدرجات:" : "Scores:"}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {report.criteria_scores.map((cs: any) => (
+                          <div key={cs.id} className="flex justify-between text-sm bg-muted rounded p-2">
+                            <span>{isAr ? cs.evaluation_criteria?.name_ar : cs.evaluation_criteria?.name_en}</span>
+                            <span className="font-bold">{cs.score}/{cs.evaluation_criteria?.max_score || 10}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {report.general_comments && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">{isAr ? "ملاحظات عامة:" : "General Comments:"}</p>
+                      <p className="text-sm mt-1 bg-muted rounded p-2">{report.general_comments}</p>
+                    </div>
+                  )}
+                  {report.confidential_comments && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {isAr ? "ملاحظات سرية (للمحرر فقط):" : "Confidential (editor only):"}
+                      </p>
+                      <p className="text-sm mt-1 bg-muted rounded p-2 border-l-2 border-destructive">{report.confidential_comments}</p>
+                    </div>
+                  )}
+                  {report.submitted_at && (
+                    <p className="text-xs text-muted-foreground">
+                      {isAr ? "تاريخ التقديم:" : "Submitted:"} {new Date(report.submitted_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       )}
 
       {/* Assigned Roles (Editor View) */}
@@ -443,38 +541,52 @@ export default function PaperDetail() {
         </Card>
       )}
 
-      {/* Stage History */}
-      {history && history.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>{isAr ? "سجل المراحل" : "Stage History"}</CardTitle></CardHeader>
-          <CardContent>
+      {/* Stage History - Always visible */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            {isAr ? "سجل المراحل والتتبع" : "Stage History & Tracking"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(!history || history.length === 0) ? (
+            <p className="text-muted-foreground text-center py-4">{isAr ? "لا يوجد سجل مراحل بعد" : "No stage history yet"}</p>
+          ) : (
             <div className="space-y-4">
-              {history.map((h, i) => (
+              {history.map((h: any, i: number) => (
                 <div key={h.id} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <div className="rounded-full p-1.5 bg-primary text-primary-foreground">
+                    <div className={`rounded-full p-1.5 ${i === history.length - 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
                       {i === history.length - 1 ? <CheckCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     </div>
                     {i < history.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
                   </div>
-                  <div className="pb-4">
+                  <div className="pb-4 flex-1">
                     <p className="font-medium">{h.action}</p>
                     {h.workflow_stages && (
                       <p className="text-sm text-muted-foreground">
                         {isAr ? h.workflow_stages.name_ar : h.workflow_stages.name_en}
                       </p>
                     )}
-                    {h.notes && <p className="text-sm text-muted-foreground mt-1">{h.notes}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(h.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
-                    </p>
+                    {h.notes && <p className="text-sm bg-muted rounded p-2 mt-1">{h.notes}</p>}
+                    <div className="flex items-center gap-2 mt-1">
+                      {(h as any).profiles?.full_name && (
+                        <span className="text-xs text-muted-foreground">
+                          {isAr ? "بواسطة:" : "By:"} {(h as any).profiles.full_name}
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(h.created_at).toLocaleString(isAr ? "ar-SA" : "en-US", { dateStyle: "short", timeStyle: "short" })}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
