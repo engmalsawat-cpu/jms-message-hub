@@ -14,6 +14,7 @@ import {
   Send,
   ShieldBan,
   LogOut,
+  Gauge,
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +48,7 @@ export function AppSidebar() {
   ];
 
   const editorItems = [
+    { title: t("nav.operations"), url: "/operations", icon: Gauge },
     { title: t("nav.papers"), url: "/papers", icon: FileText },
     { title: t("nav.journals"), url: "/journals", icon: BookOpen },
     { title: t("nav.committees"), url: "/committees", icon: Users },
