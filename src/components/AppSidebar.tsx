@@ -15,6 +15,7 @@ import {
   ShieldBan,
   LogOut,
   Gauge,
+  UserCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -45,6 +46,7 @@ export function AppSidebar() {
     { title: t("nav.myPapers"), url: "/my-papers", icon: FileText },
     { title: t("nav.submitPaper"), url: "/submit-paper", icon: Send },
     { title: t("nav.notifications"), url: "/notifications", icon: Bell },
+    { title: t("profile.title"), url: "/profile", icon: UserCircle },
   ];
 
   const editorItems = [
