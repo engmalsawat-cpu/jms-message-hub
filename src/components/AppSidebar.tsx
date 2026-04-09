@@ -72,7 +72,7 @@ export function AppSidebar() {
     ));
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" side={i18n.language === "ar" ? "right" : "left"}>
       <SidebarContent>
         {!collapsed && (
           <div className="px-4 py-4">
