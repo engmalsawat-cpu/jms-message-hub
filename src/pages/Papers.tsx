@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -34,7 +34,7 @@ export default function Papers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("papers")
-        .select("*, journals(title_ar, title_en), workflow_stages(name_ar, name_en)")
+        .select("*, journals(title_ar, title_en), workflow_stages(name_ar, name_en), profiles:submitted_by(full_name, email)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -67,11 +67,26 @@ export default function Papers() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isAr ? "الكل" : "All"}</SelectItem>
-            {["submitted", "under_review", "revision_required", "accepted", "rejected", "published"].map((s) => (
+            {["submitted", "under_review", "revision_required", "revised", "accepted", "rejected", "published"].map((s) => (
               <SelectItem key={s} value={s}>{t(`papers.status.${s}`)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Stats summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {["submitted", "under_review", "accepted", "published"].map((s) => {
+          const count = papers?.filter((p) => p.status === s).length || 0;
+          return (
+            <Card key={s} className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => setStatusFilter(s)}>
+              <CardContent className="pt-4 pb-3 text-center">
+                <div className="text-2xl font-bold">{count}</div>
+                <div className="text-xs text-muted-foreground">{t(`papers.status.${s}`)}</div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Card>
@@ -81,38 +96,48 @@ export default function Papers() {
           ) : !filtered?.length ? (
             <p className="text-muted-foreground">{t("common.noData")}</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isAr ? t("papers.titleAr") : t("papers.titleEn")}</TableHead>
-                  <TableHead>{t("journals.title")}</TableHead>
-                  <TableHead>{t("common.status")}</TableHead>
-                  <TableHead>{isAr ? "المرحلة" : "Stage"}</TableHead>
-                  <TableHead>{t("common.actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((paper) => (
-                  <TableRow key={paper.id}>
-                    <TableCell className="font-medium">
-                      {isAr ? paper.title_ar : paper.title_en}
-                    </TableCell>
-                    <TableCell>{isAr ? paper.journals?.title_ar : paper.journals?.title_en}</TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {paper.workflow_stages ? (isAr ? paper.workflow_stages.name_ar : paper.workflow_stages.name_en) : "-"}
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/papers/${paper.id}`}>
-                        <Button variant="ghost" size="sm"><Eye className="h-4 w-4" /></Button>
-                      </Link>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-start">{isAr ? t("papers.titleAr") : t("papers.titleEn")}</TableHead>
+                    <TableHead className="text-start">{isAr ? "الباحث" : "Author"}</TableHead>
+                    <TableHead className="text-start">{t("journals.title")}</TableHead>
+                    <TableHead className="text-start">{t("common.status")}</TableHead>
+                    <TableHead className="text-start">{isAr ? "المرحلة" : "Stage"}</TableHead>
+                    <TableHead className="text-start">{isAr ? "التاريخ" : "Date"}</TableHead>
+                    <TableHead className="text-start w-16">{t("common.actions")}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((paper: any) => (
+                    <TableRow key={paper.id}>
+                      <TableCell className="font-medium">
+                        {isAr ? paper.title_ar : paper.title_en}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {paper.profiles?.full_name || paper.profiles?.email || "-"}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">{isAr ? paper.journals?.title_ar : paper.journals?.title_en}</TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {paper.workflow_stages ? (isAr ? paper.workflow_stages.name_ar : paper.workflow_stages.name_en) : "-"}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                        {paper.submitted_at ? new Date(paper.submitted_at).toLocaleDateString(isAr ? "ar-SA" : "en-US") : "-"}
+                      </TableCell>
+                      <TableCell>
+                        <Link to={`/papers/${paper.id}`}>
+                          <Button variant="ghost" size="sm"><Eye className="h-4 w-4" /></Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
