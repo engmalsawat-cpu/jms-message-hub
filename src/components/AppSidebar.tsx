@@ -30,7 +30,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function AppSidebar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { hasAnyRole, signOut, profile } = useAuth();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -72,7 +72,7 @@ export function AppSidebar() {
     ));
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" side={i18n.language === "ar" ? "right" : "left"}>
       <SidebarContent>
         {!collapsed && (
           <div className="px-4 py-4">

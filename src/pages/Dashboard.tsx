@@ -57,6 +57,20 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
+  const StatCard = ({ title, count, icon: Icon, to, color }: { title: string; count: number; icon: any; to: string; color?: string }) => (
+    <Link to={to}>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <CardHeader className="flex flex-row-reverse items-center justify-between pb-2">
+          <Icon className={`h-5 w-5 ${color || "text-muted-foreground"}`} />
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold">{count}</div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -66,58 +80,15 @@ export default function Dashboard() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Link to="/my-papers">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{t("nav.myPapers")}</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{myPapers ?? 0}</div></CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/notifications">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{t("nav.notifications")}</CardTitle>
-              <Bell className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{unreadNotifs ?? 0}</div></CardContent>
-          </Card>
-        </Link>
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <StatCard title={t("nav.myPapers")} count={myPapers ?? 0} icon={FileText} to="/my-papers" color="text-primary" />
+        <StatCard title={t("nav.notifications")} count={unreadNotifs ?? 0} icon={Bell} to="/notifications" color="text-accent" />
 
         {isEditor && (
           <>
-            <Link to="/papers">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">{t("nav.papers")}</CardTitle>
-                  <Send className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{allPapers ?? 0}</div></CardContent>
-              </Card>
-            </Link>
-
-            <Link to="/journals">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">{t("nav.journals")}</CardTitle>
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{journalCount ?? 0}</div></CardContent>
-              </Card>
-            </Link>
-
-            <Link to="/committees">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">{t("nav.committees")}</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{committeeCount ?? 0}</div></CardContent>
-              </Card>
-            </Link>
+            <StatCard title={t("nav.papers")} count={allPapers ?? 0} icon={Send} to="/papers" color="text-primary" />
+            <StatCard title={t("nav.journals")} count={journalCount ?? 0} icon={BookOpen} to="/journals" />
+            <StatCard title={t("nav.committees")} count={committeeCount ?? 0} icon={Users} to="/committees" />
           </>
         )}
       </div>
@@ -127,9 +98,16 @@ export default function Dashboard() {
           <CardTitle className="text-base">{isAr ? "الأدوار" : "Your Roles"}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            {roles.length > 0 ? roles.map((r) => t("roles." + r)).join(", ") : t("roles.researcher")}
-          </p>
+          <div className="flex gap-2 flex-wrap">
+            {roles.length > 0
+              ? roles.map((r) => (
+                  <span key={r} className="inline-flex items-center rounded-md bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                    {t("roles." + r)}
+                  </span>
+                ))
+              : <span className="text-muted-foreground">{t("roles.researcher")}</span>
+            }
+          </div>
         </CardContent>
       </Card>
     </div>
