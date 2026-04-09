@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { BookOpen, Plus } from "lucide-react";
+import WorkflowStagesManager from "@/components/WorkflowStagesManager";
 
 export default function Journals() {
   const { t, i18n } = useTranslation();
