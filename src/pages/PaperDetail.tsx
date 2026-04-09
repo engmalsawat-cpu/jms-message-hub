@@ -18,6 +18,7 @@ import {
   ArrowRight, ArrowLeft, Clock, CheckCircle, FileText,
   UserPlus, Send, MessageSquare, AlertTriangle
 } from "lucide-react";
+import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -390,6 +391,11 @@ export default function PaperDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* Review Requests (Editor View) */}
+      {isEditor && (
+        <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
+      )}
 
       {/* Assigned Roles (Editor View) */}
       {isEditor && paperRoles && paperRoles.length > 0 && (
