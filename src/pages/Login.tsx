@@ -9,12 +9,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
+const QUICK_LOGINS = [
+  { email: "admin@test.com", label: "Admin", color: "bg-red-100 text-red-800 hover:bg-red-200" },
+  { email: "editor@test.com", label: "Editor", color: "bg-blue-100 text-blue-800 hover:bg-blue-200" },
+  { email: "managing@test.com", label: "Managing", color: "bg-purple-100 text-purple-800 hover:bg-purple-200" },
+  { email: "reviewer@test.com", label: "Reviewer", color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200" },
+  { email: "researcher@test.com", label: "Researcher", color: "bg-green-100 text-green-800 hover:bg-green-200" },
+  { email: "committee@test.com", label: "Committee", color: "bg-orange-100 text-orange-800 hover:bg-orange-200" },
+];
+
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [quickLoading, setQuickLoading] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +37,17 @@ export default function Login() {
       navigate("/dashboard");
     }
     setLoading(false);
+  };
+
+  const quickLogin = async (acc: typeof QUICK_LOGINS[0]) => {
+    setQuickLoading(acc.email);
+    const { error } = await supabase.auth.signInWithPassword({ email: acc.email, password: "123456789" });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      navigate("/dashboard");
+    }
+    setQuickLoading(null);
   };
 
   return (
@@ -60,6 +81,25 @@ export default function Login() {
             </p>
           </CardFooter>
         </form>
+
+        {/* Quick Login for Testing */}
+        <div className="border-t px-6 py-4">
+          <p className="text-xs text-muted-foreground mb-2 text-center">🔧 Quick Login (Testing)</p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {QUICK_LOGINS.map((acc) => (
+              <Button
+                key={acc.email}
+                variant="ghost"
+                size="sm"
+                className={`h-7 px-3 text-xs rounded-full ${acc.color}`}
+                disabled={quickLoading !== null}
+                onClick={() => quickLogin(acc)}
+              >
+                {quickLoading === acc.email ? "..." : acc.label}
+              </Button>
+            ))}
+          </div>
+        </div>
       </Card>
     </div>
   );
