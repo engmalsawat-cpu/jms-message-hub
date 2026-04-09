@@ -541,38 +541,52 @@ export default function PaperDetail() {
         </Card>
       )}
 
-      {/* Stage History */}
-      {history && history.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>{isAr ? "سجل المراحل" : "Stage History"}</CardTitle></CardHeader>
-          <CardContent>
+      {/* Stage History - Always visible */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            {isAr ? "سجل المراحل والتتبع" : "Stage History & Tracking"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(!history || history.length === 0) ? (
+            <p className="text-muted-foreground text-center py-4">{isAr ? "لا يوجد سجل مراحل بعد" : "No stage history yet"}</p>
+          ) : (
             <div className="space-y-4">
-              {history.map((h, i) => (
+              {history.map((h: any, i: number) => (
                 <div key={h.id} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <div className="rounded-full p-1.5 bg-primary text-primary-foreground">
+                    <div className={`rounded-full p-1.5 ${i === history.length - 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
                       {i === history.length - 1 ? <CheckCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     </div>
                     {i < history.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
                   </div>
-                  <div className="pb-4">
+                  <div className="pb-4 flex-1">
                     <p className="font-medium">{h.action}</p>
                     {h.workflow_stages && (
                       <p className="text-sm text-muted-foreground">
                         {isAr ? h.workflow_stages.name_ar : h.workflow_stages.name_en}
                       </p>
                     )}
-                    {h.notes && <p className="text-sm text-muted-foreground mt-1">{h.notes}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(h.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
-                    </p>
+                    {h.notes && <p className="text-sm bg-muted rounded p-2 mt-1">{h.notes}</p>}
+                    <div className="flex items-center gap-2 mt-1">
+                      {(h as any).profiles?.full_name && (
+                        <span className="text-xs text-muted-foreground">
+                          {isAr ? "بواسطة:" : "By:"} {(h as any).profiles.full_name}
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(h.created_at).toLocaleString(isAr ? "ar-SA" : "en-US", { dateStyle: "short", timeStyle: "short" })}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
