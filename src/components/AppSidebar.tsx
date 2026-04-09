@@ -16,6 +16,7 @@ import {
   LogOut,
   Gauge,
   UserCircle,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +48,7 @@ export function AppSidebar() {
     { title: t("nav.submitPaper"), url: "/submit-paper", icon: Send },
     { title: t("nav.notifications"), url: "/notifications", icon: Bell },
     { title: t("profile.title"), url: "/profile", icon: UserCircle },
+    { title: t("nav.reviewer"), url: "/reviewer", icon: ClipboardCheck },
   ];
 
   const editorItems = [

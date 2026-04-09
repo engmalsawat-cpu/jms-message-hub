@@ -53,6 +53,7 @@ export default {
     submitPaper: "Submit Paper",
     blacklist: "Blacklist",
     operations: "Operations",
+    reviewer: "Reviewer Panel",
   },
   papers: {
     title: "Papers",
