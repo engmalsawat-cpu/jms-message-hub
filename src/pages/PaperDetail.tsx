@@ -382,9 +382,18 @@ export default function PaperDetail() {
               <Separator />
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">{t("papers.file")}</span>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={async () => {
+                    const { data } = await supabase.storage.from("papers").createSignedUrl(paper.file_url!, 3600);
+                    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                    else toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
+                  }}
+                >
                   <FileText className="h-4 w-4" />
-                  {isAr ? "عرض الملف" : "View File"}
+                  {isAr ? "تحميل الملف" : "Download File"}
                 </Button>
               </div>
             </>
