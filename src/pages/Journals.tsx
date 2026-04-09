@@ -136,6 +136,7 @@ export default function Journals() {
                   {j.issn && (
                     <p className="text-xs text-muted-foreground">ISSN: {j.issn}</p>
                   )}
+                  <WorkflowStagesManager journalId={j.id} isEditor={isEditor} />
                 </CardContent>
               </Card>
             );
