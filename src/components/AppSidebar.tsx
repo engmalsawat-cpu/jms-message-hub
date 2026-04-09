@@ -30,7 +30,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function AppSidebar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { hasAnyRole, signOut, profile } = useAuth();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
