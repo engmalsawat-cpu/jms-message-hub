@@ -49,16 +49,29 @@ export default function OperationsDashboard() {
   const [journalFilter, setJournalFilter] = useState("all");
   const [delayDays, setDelayDays] = useState(14);
 
-  // Fetch all papers with relations
+  // Fetch all papers with journal relation
   const { data: papers = [], isLoading } = useQuery({
     queryKey: ["ops-papers"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("papers")
-        .select("*, journals(title_ar, title_en), profiles:submitted_by(full_name, email), workflow_stages(name_ar, name_en)")
+        .select("*, journals(title_ar, title_en)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data || [];
+      // Fetch profiles for submitted_by
+      const userIds = [...new Set((data || []).map((p: any) => p.submitted_by))];
+      let profilesMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", userIds);
+        (profiles || []).forEach((p: any) => { profilesMap[p.id] = p; });
+      }
+      return (data || []).map((p: any) => ({
+        ...p,
+        profiles: profilesMap[p.submitted_by] || null,
+      }));
     },
   });
 
@@ -68,9 +81,21 @@ export default function OperationsDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("paper_roles")
-        .select("*, profiles:user_id(full_name, email)");
+        .select("*");
       if (error) throw error;
-      return data || [];
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id))];
+      let profilesMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", userIds);
+        (profiles || []).forEach((p: any) => { profilesMap[p.id] = p; });
+      }
+      return (data || []).map((r: any) => ({
+        ...r,
+        profiles: profilesMap[r.user_id] || null,
+      }));
     },
   });
 
