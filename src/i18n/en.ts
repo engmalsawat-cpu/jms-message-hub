@@ -52,6 +52,7 @@ export default {
     myPapers: "My Papers",
     submitPaper: "Submit Paper",
     blacklist: "Blacklist",
+    operations: "Operations",
   },
   papers: {
     title: "Papers",

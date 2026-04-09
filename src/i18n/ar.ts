@@ -52,6 +52,7 @@ export default {
     myPapers: "أبحاثي",
     submitPaper: "تقديم بحث",
     blacklist: "القائمة السوداء",
+    operations: "لوحة التشغيل",
   },
   papers: {
     title: "الأبحاث",
