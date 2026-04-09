@@ -22,6 +22,7 @@ import Financial from "./pages/Financial";
 import Blacklist from "./pages/Blacklist";
 import OperationsDashboard from "./pages/OperationsDashboard";
 import Profile from "./pages/Profile";
+import SeedUsers from "./pages/SeedUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/seed-users" element={<SeedUsers />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
