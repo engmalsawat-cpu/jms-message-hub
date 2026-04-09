@@ -62,13 +62,14 @@ export default function MyPapers() {
           ) : !papers?.length ? (
             <p className="text-muted-foreground">{t("common.noData")}</p>
           ) : (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{isAr ? t("papers.titleAr") : t("papers.titleEn")}</TableHead>
-                  <TableHead>{t("journals.title")}</TableHead>
-                  <TableHead>{t("common.status")}</TableHead>
-                  <TableHead>{t("common.actions")}</TableHead>
+                  <TableHead className="text-start">{isAr ? t("papers.titleAr") : t("papers.titleEn")}</TableHead>
+                  <TableHead className="text-start">{t("journals.title")}</TableHead>
+                  <TableHead className="text-start">{t("common.status")}</TableHead>
+                  <TableHead className="text-start w-16">{t("common.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,7 +78,7 @@ export default function MyPapers() {
                     <TableCell className="font-medium">
                       {isAr ? paper.title_ar : paper.title_en}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {isAr ? paper.journals?.title_ar : paper.journals?.title_en}
                     </TableCell>
                     <TableCell>
@@ -96,6 +97,7 @@ export default function MyPapers() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>
