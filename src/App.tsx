@@ -20,6 +20,7 @@ import Notifications from "./pages/Notifications";
 import Users from "./pages/Users";
 import Financial from "./pages/Financial";
 import Blacklist from "./pages/Blacklist";
+import OperationsDashboard from "./pages/OperationsDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/users" element={<Users />} />
               <Route path="/financial" element={<Financial />} />
               <Route path="/blacklist" element={<Blacklist />} />
+              <Route path="/operations" element={<OperationsDashboard />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
