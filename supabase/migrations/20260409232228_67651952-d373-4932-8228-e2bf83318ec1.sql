@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can insert own role (temp)" ON public.user_roles;
