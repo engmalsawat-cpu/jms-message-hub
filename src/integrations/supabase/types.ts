@@ -247,6 +247,101 @@ export type Database = {
           },
         ]
       }
+      criteria_scores: {
+        Row: {
+          comment: string | null
+          created_at: string
+          criteria_id: string
+          id: string
+          review_report_id: string
+          score: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          criteria_id: string
+          id?: string
+          review_report_id: string
+          score?: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          criteria_id?: string
+          id?: string
+          review_report_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "criteria_scores_criteria_id_fkey"
+            columns: ["criteria_id"]
+            isOneToOne: false
+            referencedRelation: "evaluation_criteria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "criteria_scores_review_report_id_fkey"
+            columns: ["review_report_id"]
+            isOneToOne: false
+            referencedRelation: "review_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evaluation_criteria: {
+        Row: {
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          is_active: boolean
+          journal_id: string
+          max_score: number
+          name_ar: string
+          name_en: string
+          sort_order: number
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          is_active?: boolean
+          journal_id: string
+          max_score?: number
+          name_ar: string
+          name_en: string
+          sort_order?: number
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          is_active?: boolean
+          journal_id?: string
+          max_score?: number
+          name_ar?: string
+          name_en?: string
+          sort_order?: number
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluation_criteria_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_records: {
         Row: {
           amount: number
@@ -646,6 +741,119 @@ export type Database = {
         }
         Relationships: []
       }
+      review_reports: {
+        Row: {
+          confidential_comments: string | null
+          created_at: string
+          general_comments: string | null
+          id: string
+          is_submitted: boolean
+          paper_id: string
+          recommendation:
+            | Database["public"]["Enums"]["review_recommendation"]
+            | null
+          review_request_id: string
+          reviewer_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          confidential_comments?: string | null
+          created_at?: string
+          general_comments?: string | null
+          id?: string
+          is_submitted?: boolean
+          paper_id: string
+          recommendation?:
+            | Database["public"]["Enums"]["review_recommendation"]
+            | null
+          review_request_id: string
+          reviewer_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          confidential_comments?: string | null
+          created_at?: string
+          general_comments?: string | null
+          id?: string
+          is_submitted?: boolean
+          paper_id?: string
+          recommendation?:
+            | Database["public"]["Enums"]["review_recommendation"]
+            | null
+          review_request_id?: string
+          reviewer_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_reports_paper_id_fkey"
+            columns: ["paper_id"]
+            isOneToOne: false
+            referencedRelation: "papers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_reports_review_request_id_fkey"
+            columns: ["review_request_id"]
+            isOneToOne: false
+            referencedRelation: "review_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_requests: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          paper_id: string
+          requested_by: string
+          responded_at: string | null
+          response_notes: string | null
+          reviewer_id: string
+          status: Database["public"]["Enums"]["review_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paper_id: string
+          requested_by: string
+          responded_at?: string | null
+          response_notes?: string | null
+          reviewer_id: string
+          status?: Database["public"]["Enums"]["review_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paper_id?: string
+          requested_by?: string
+          responded_at?: string | null
+          response_notes?: string | null
+          reviewer_id?: string
+          status?: Database["public"]["Enums"]["review_request_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_requests_paper_id_fkey"
+            columns: ["paper_id"]
+            isOneToOne: false
+            referencedRelation: "papers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scientific_productions: {
         Row: {
           created_at: string
@@ -962,6 +1170,18 @@ export type Database = {
         | "rejected"
         | "published"
         | "withdrawn"
+      review_recommendation:
+        | "accept"
+        | "minor_revision"
+        | "major_revision"
+        | "reject"
+      review_request_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "cancelled"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1108,6 +1328,20 @@ export const Constants = {
         "rejected",
         "published",
         "withdrawn",
+      ],
+      review_recommendation: [
+        "accept",
+        "minor_revision",
+        "major_revision",
+        "reject",
+      ],
+      review_request_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled",
+        "expired",
       ],
     },
   },
