@@ -43,6 +43,7 @@ export function AppSidebar() {
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.myPapers"), url: "/my-papers", icon: FileText },
     { title: t("nav.submitPaper"), url: "/submit-paper", icon: Send },
+    { title: t("nav.notifications"), url: "/notifications", icon: Bell },
   ];
 
   const editorItems = [
