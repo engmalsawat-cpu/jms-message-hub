@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Outlet, Link } from "react-router-dom";
@@ -30,6 +31,10 @@ export function AppLayout() {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Temp Role Switcher */}
+          <div className="bg-muted/50 border-b">
+            <RoleSwitcher />
+          </div>
           <header className="h-14 flex items-center border-b px-4">
             <SidebarTrigger />
             <div className="flex-1" />
