@@ -80,13 +80,28 @@ export default function PaperDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("paper_stage_history")
-        .select("*, workflow_stages(name_ar, name_en)")
+        .select("*, workflow_stages(name_ar, name_en), profiles:performed_by(full_name)")
         .eq("paper_id", id!)
         .order("created_at", { ascending: true });
       if (error) throw error;
       return data;
     },
     enabled: !!id,
+  });
+
+  const { data: reviewReports = [] } = useQuery({
+    queryKey: ["paper-review-reports", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("review_reports")
+        .select("*, profiles:reviewer_id(full_name), criteria_scores(*, evaluation_criteria:criteria_id(name_ar, name_en, max_score))")
+        .eq("paper_id", id!)
+        .eq("is_submitted", true)
+        .order("submitted_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id && isEditor,
   });
 
   const { data: paperRoles } = useQuery({
