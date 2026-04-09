@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   ArrowRight, ArrowLeft, Clock, CheckCircle, FileText,
-  UserPlus, Send, MessageSquare, AlertTriangle
+  UserPlus, Send, MessageSquare, AlertTriangle, Star, Eye, ClipboardCheck
 } from "lucide-react";
 import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 
