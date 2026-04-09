@@ -12,7 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ArrowRight, ArrowLeft, Save, Send, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Save, Send, Loader2, FileText } from "lucide-react";
 
 export default function ReviewForm() {
   const { t, i18n } = useTranslation();
@@ -194,13 +194,27 @@ export default function ReviewForm() {
         </div>
       </div>
 
-      {/* Paper Abstract */}
+      {/* Paper Abstract & File */}
       <Card>
         <CardHeader>
           <CardTitle>{isAr ? "ملخص البحث" : "Paper Abstract"}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <p className="text-sm">{isAr ? request.papers?.abstract_ar : request.papers?.abstract_en}</p>
+          {request.papers?.file_url && (
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={async () => {
+                const { data } = await supabase.storage.from("papers").createSignedUrl(request.papers!.file_url!, 3600);
+                if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                else toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
+              }}
+            >
+              <FileText className="h-4 w-4" />
+              {isAr ? "تحميل ملف البحث" : "Download Paper File"}
+            </Button>
+          )}
         </CardContent>
       </Card>
 
