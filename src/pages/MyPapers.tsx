@@ -52,7 +52,7 @@ export default function MyPapers() {
         </Link>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>{t("papers.title")}</CardTitle>
         </CardHeader>
