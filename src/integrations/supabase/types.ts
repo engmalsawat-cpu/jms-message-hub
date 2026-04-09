@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_qualifications: {
+        Row: {
+          certificate_url: string | null
+          country: string | null
+          created_at: string
+          degree: string
+          field_of_study: string
+          graduation_year: number | null
+          id: string
+          institution: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          country?: string | null
+          created_at?: string
+          degree: string
+          field_of_study: string
+          graduation_year?: number | null
+          id?: string
+          institution: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          certificate_url?: string | null
+          country?: string | null
+          created_at?: string
+          degree?: string
+          field_of_study?: string
+          graduation_year?: number | null
+          id?: string
+          institution?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blacklist: {
         Row: {
           added_by: string | null
@@ -558,33 +597,125 @@ export type Database = {
       }
       profiles: {
         Row: {
+          academic_rank: string | null
           avatar_url: string | null
+          bio: string | null
+          country: string | null
           created_at: string
           email: string | null
           full_name: string | null
+          google_scholar_url: string | null
           id: string
+          institution: string | null
+          orcid: string | null
+          phone: string | null
           preferred_language: string
           updated_at: string
         }
         Insert: {
+          academic_rank?: string | null
           avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
+          google_scholar_url?: string | null
           id: string
+          institution?: string | null
+          orcid?: string | null
+          phone?: string | null
           preferred_language?: string
           updated_at?: string
         }
         Update: {
+          academic_rank?: string | null
           avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
+          google_scholar_url?: string | null
           id?: string
+          institution?: string | null
+          orcid?: string | null
+          phone?: string | null
           preferred_language?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      scientific_productions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          production_type: string
+          publication_date: string | null
+          publisher: string | null
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          production_type?: string
+          publication_date?: string | null
+          publisher?: string | null
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          production_type?: string
+          publication_date?: string | null
+          publisher?: string | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      specializations: {
+        Row: {
+          created_at: string
+          id: string
+          name_ar: string
+          name_en: string
+          parent_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_ar: string
+          name_en: string
+          parent_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_ar?: string
+          name_en?: string
+          parent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specializations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "specializations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       submission_windows: {
         Row: {
@@ -676,6 +807,74 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_specializations: {
+        Row: {
+          created_at: string
+          id: string
+          specialization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          specialization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          specialization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_specializations_specialization_id_fkey"
+            columns: ["specialization_id"]
+            isOneToOne: false
+            referencedRelation: "specializations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_experiences: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          is_current: boolean
+          job_title: string
+          organization: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          job_title: string
+          organization: string
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          job_title?: string
+          organization?: string
+          start_date?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
