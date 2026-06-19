@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Users, Vote, Plus, UserPlus, Trash2 } from "lucide-react";
+import { tally, type VoteValue } from "@/lib/committeeTally";
 
 export default function Committees() {
   const { t, i18n } = useTranslation();
@@ -43,7 +44,18 @@ export default function Committees() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("committees")
-        .select("*, journals(title_ar, title_en), committee_members(id, user_id, is_head)")
+        .select(`
+          *,
+          journals(title_ar, title_en),
+          committee_members(id, user_id, is_head),
+          committee_papers(
+            id,
+            status,
+            decision,
+            papers(title_ar, title_en),
+            committee_votes(id, user_id, vote)
+          )
+        `)
         .order("created_at", { ascending: false });
       if (error) throw error;
       const userIds = Array.from(
@@ -236,6 +248,67 @@ export default function Committees() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Assigned papers */}
+                  {(() => {
+                    const papers: any[] = c.committee_papers || [];
+                    if (papers.length === 0) return null;
+                    const memberCount = c.committee_members?.length || 0;
+                    return (
+                      <div className="space-y-1 pt-1">
+                        <p className="text-sm font-medium">
+                          {isAr ? "الأبحاث المحالة" : "Assigned Papers"} ({papers.length})
+                        </p>
+                        {papers.map((cp: any) => {
+                          const voteValues = (cp.committee_votes || []).map((v: any) => v.vote as VoteValue);
+                          const result = tally({
+                            votes: voteValues,
+                            memberCount,
+                            mechanism: c.voting_mechanism,
+                            minVotes: c.min_votes,
+                          });
+                          const paperTitle = isAr ? cp.papers?.title_ar : cp.papers?.title_en;
+                          const decided = cp.status === "decided";
+                          return (
+                            <div key={cp.id} className="flex items-center justify-between text-sm py-1 border-b last:border-0 gap-2">
+                              <span className="truncate flex-1">{paperTitle || "—"}</span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                {decided && cp.decision ? (
+                                  <Badge
+                                    className={
+                                      cp.decision === "approved"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }
+                                  >
+                                    {cp.decision === "approved"
+                                      ? isAr ? "موافقة" : "Approved"
+                                      : isAr ? "رفض" : "Rejected"}
+                                  </Badge>
+                                ) : result.decision ? (
+                                  <Badge
+                                    className={
+                                      result.decision === "approved"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }
+                                  >
+                                    {result.decision === "approved"
+                                      ? isAr ? "موافقة" : "Approved"
+                                      : isAr ? "رفض" : "Rejected"}
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="secondary">
+                                    {isAr ? `${result.cast}/${memberCount}` : `${result.cast}/${memberCount}`}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
 
                   {isEditor && (
                     <Dialog open={addMemberOpen === c.id} onOpenChange={(open) => setAddMemberOpen(open ? c.id : null)}>

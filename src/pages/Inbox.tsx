@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ClipboardCheck, Clock, FileText, Inbox as InboxIcon } from "lucide-react";
+import { Bell, ClipboardCheck, Clock, FileText, Inbox as InboxIcon, Vote } from "lucide-react";
 
 export default function Inbox() {
   const { t, i18n } = useTranslation();
@@ -60,7 +60,50 @@ export default function Inbox() {
     enabled: !!user,
   });
 
-  // Section 4: Unread notifications (user_id = me, is_read = false, newest first, limit 5)
+  // Section 4: Committee papers awaiting my vote
+  // Find committee_papers where:
+  //   - I am a member of the committee
+  //   - The paper is not yet decided (status != 'decided')
+  //   - I have NOT yet cast a vote (no committee_votes row with my user_id)
+  const { data: awaitingVotes = [] } = useQuery({
+    queryKey: ["inbox-awaiting-committee-vote", user?.id],
+    queryFn: async () => {
+      // 1. Get committees I am a member of
+      const { data: myMemberships, error: mErr } = await supabase
+        .from("committee_members")
+        .select("committee_id")
+        .eq("user_id", user!.id);
+      if (mErr) throw mErr;
+      if (!myMemberships?.length) return [];
+
+      const committeeIds = myMemberships.map((m: any) => m.committee_id);
+
+      // 2. Get committee_papers in those committees that are still pending
+      const { data: cps, error: cpErr } = await supabase
+        .from("committee_papers")
+        .select(`
+          id,
+          committee_id,
+          paper_id,
+          status,
+          papers(id, title_ar, title_en, journals(title_ar, title_en)),
+          committees(name_ar, name_en),
+          committee_votes(id, user_id)
+        `)
+        .in("committee_id", committeeIds)
+        .neq("status", "decided");
+      if (cpErr) throw cpErr;
+
+      // 3. Filter to those where I haven't voted yet
+      return (cps || []).filter(
+        (cp: any) =>
+          !(cp.committee_votes || []).some((v: any) => v.user_id === user!.id)
+      );
+    },
+    enabled: !!user,
+  });
+
+  // Section 5: Unread notifications (user_id = me, is_read = false, newest first, limit 5)
   const { data: unreadNotifs = [] } = useQuery({
     queryKey: ["inbox-unread-notifs", user?.id],
     queryFn: async () => {
@@ -81,6 +124,7 @@ export default function Inbox() {
     pendingReviews.length === 0 &&
     activeReviews.length === 0 &&
     revisionPapers.length === 0 &&
+    awaitingVotes.length === 0 &&
     unreadNotifs.length === 0;
 
   return (
@@ -206,7 +250,47 @@ export default function Inbox() {
             </Card>
           )}
 
-          {/* Section 4: Unread notifications */}
+          {/* Section 4: Committee papers awaiting my vote */}
+          {awaitingVotes.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Vote className="h-5 w-5 text-purple-500" />
+                  {t("inbox.awaitingCommitteeVote")}
+                  <Badge variant="secondary" className="ms-auto">
+                    {awaitingVotes.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {awaitingVotes.map((cp: any) => (
+                  <Link key={cp.id} to={`/papers/${cp.paper_id}`} className="block">
+                    <div className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors">
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-medium">
+                          {isAr ? cp.papers?.title_ar : cp.papers?.title_en}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {isAr
+                            ? cp.committees?.name_ar
+                            : cp.committees?.name_en}
+                          {" · "}
+                          {isAr
+                            ? cp.papers?.journals?.title_ar
+                            : cp.papers?.journals?.title_en}
+                        </p>
+                      </div>
+                      <Badge className="bg-purple-100 text-purple-800 shrink-0">
+                        {isAr ? "بانتظار تصويتك" : "Vote needed"}
+                      </Badge>
+                    </div>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Section 5: Unread notifications */}
           {unreadNotifs.length > 0 && (
             <Card>
               <CardHeader>
