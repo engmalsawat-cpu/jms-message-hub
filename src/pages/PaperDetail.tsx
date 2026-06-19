@@ -56,21 +56,22 @@ export default function PaperDetail() {
   const queryClient = useQueryClient();
   const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
 
-  const openPaperFile = async (filePath: string) => {
-    const newTab = window.open("", "_blank", "noopener,noreferrer");
-    const { data, error } = await supabase.storage.from("papers").createSignedUrl(filePath, 3600);
+  const downloadPaperFile = async (filePath: string) => {
+    const { data, error } = await supabase.storage.from("papers").download(filePath);
 
-    if (error || !data?.signedUrl) {
-      newTab?.close();
+    if (error || !data) {
       toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
       return;
     }
 
-    if (newTab) {
-      newTab.location.href = data.signedUrl;
-    } else {
-      window.location.href = data.signedUrl;
-    }
+    const url = URL.createObjectURL(data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filePath.split("/").pop() || "paper-file";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
@@ -550,7 +551,7 @@ export default function PaperDetail() {
                   variant="outline"
                   size="sm"
                   className="gap-2"
-                  onClick={() => openPaperFile(paper.file_url!)}
+                  onClick={() => downloadPaperFile(paper.file_url!)}
                 >
                   <FileText className="h-4 w-4" />
                   {isAr ? "تحميل الملف" : "Download File"}
