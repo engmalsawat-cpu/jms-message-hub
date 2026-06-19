@@ -1150,6 +1150,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_hq_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_member_of_journal: {
+        Args: { _journal_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
@@ -1159,6 +1164,7 @@ export type Database = {
         | "reviewer"
         | "researcher"
         | "committee_member"
+        | "hq_admin"
       journal_status: "active" | "inactive" | "archived"
       paper_status:
         | "draft"
@@ -1316,6 +1322,7 @@ export const Constants = {
         "reviewer",
         "researcher",
         "committee_member",
+        "hq_admin",
       ],
       journal_status: ["active", "inactive", "archived"],
       paper_status: [
