@@ -15,7 +15,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Layers } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Layers, Wand2 } from "lucide-react";
+import { DEFAULT_STAGES } from "@/lib/defaultStages";
 
 const stageTypeColors: Record<string, string> = {
   screening: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
@@ -134,6 +135,25 @@ export default function WorkflowStagesManager({ journalId, isEditor }: Props) {
     onError: (err: any) => toast.error(err.message),
   });
 
+  const seedDefaults = useMutation({
+    mutationFn: async () => {
+      const rows = DEFAULT_STAGES.map((s) => ({
+        journal_id: journalId,
+        name_ar: s.name_ar,
+        name_en: s.name_en,
+        stage_type: s.stage_type,
+        stage_order: s.stage_order,
+      }));
+      const { error } = await supabase.from("workflow_stages").insert(rows);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success(t("journals.defaultStagesLoaded"));
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+
   const openEdit = (stage: any) => {
     setEditId(stage.id);
     setForm({ name_ar: stage.name_ar, name_en: stage.name_en, stage_type: stage.stage_type });
@@ -202,7 +222,21 @@ export default function WorkflowStagesManager({ journalId, isEditor }: Props) {
       {isLoading ? (
         <p className="text-xs text-muted-foreground">{t("common.loading")}</p>
       ) : stages.length === 0 ? (
-        <p className="text-xs text-muted-foreground">{t("journals.noStages")}</p>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">{t("journals.noStages")}</p>
+          {isEditor && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              disabled={seedDefaults.isPending}
+              onClick={() => seedDefaults.mutate()}
+            >
+              <Wand2 className="h-3.5 w-3.5" />
+              {seedDefaults.isPending ? t("common.loading") : t("journals.loadDefaultStages")}
+            </Button>
+          )}
+        </div>
       ) : (
         <div className="space-y-1.5">
           {stages.map((stage: any, idx: number) => (

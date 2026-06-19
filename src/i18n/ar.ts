@@ -104,6 +104,8 @@ export default {
     confirmDeleteStage: "هل أنت متأكد من حذف هذه المرحلة؟",
     noStages: "لا توجد مراحل معرّفة",
     manageStages: "إدارة المراحل",
+    loadDefaultStages: "تحميل المراحل الافتراضية",
+    defaultStagesLoaded: "تم تحميل المراحل الافتراضية",
   },
   committees: {
     title: "اللجان",
