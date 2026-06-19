@@ -17,9 +17,9 @@ import { Constants } from "@/integrations/supabase/types";
 
 export default function UsersPage() {
   const { t, i18n } = useTranslation();
-  const { hasRole } = useAuth();
+  const { hasAnyRole } = useAuth();
   const isAr = i18n.language === "ar";
-  const isAdmin = hasRole("admin");
+  const isAdmin = hasAnyRole(["admin", "hq_admin"]);
   const queryClient = useQueryClient();
 
   const [roleDialogUser, setRoleDialogUser] = useState<{ id: string; name: string } | null>(null);

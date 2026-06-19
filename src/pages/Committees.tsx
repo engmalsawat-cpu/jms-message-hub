@@ -17,7 +17,7 @@ export default function Committees() {
   const { t, i18n } = useTranslation();
   const { hasAnyRole } = useAuth();
   const isAr = i18n.language === "ar";
-  const isEditor = hasAnyRole(["admin", "editor_in_chief"]);
+  const isEditor = hasAnyRole(["admin", "editor_in_chief", "hq_admin"]);
   const queryClient = useQueryClient();
 
   const [createOpen, setCreateOpen] = useState(false);
