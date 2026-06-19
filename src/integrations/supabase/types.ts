@@ -859,6 +859,20 @@ export type Database = {
             referencedRelation: "papers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "review_requests_requested_by_profiles_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_requests_reviewer_id_profiles_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       scientific_productions: {
