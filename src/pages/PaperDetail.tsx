@@ -56,6 +56,23 @@ export default function PaperDetail() {
   const queryClient = useQueryClient();
   const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
 
+  const openPaperFile = async (filePath: string) => {
+    const newTab = window.open("", "_blank", "noopener,noreferrer");
+    const { data, error } = await supabase.storage.from("papers").createSignedUrl(filePath, 3600);
+
+    if (error || !data?.signedUrl) {
+      newTab?.close();
+      toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
+      return;
+    }
+
+    if (newTab) {
+      newTab.location.href = data.signedUrl;
+    } else {
+      window.location.href = data.signedUrl;
+    }
+  };
+
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [statusNotes, setStatusNotes] = useState("");
@@ -521,27 +538,30 @@ export default function PaperDetail() {
             <span className="text-muted-foreground">{isAr ? "تاريخ التقديم" : "Submitted At"}</span>
             <span>{paper.submitted_at ? new Date(paper.submitted_at).toLocaleDateString(isAr ? "ar-SA" : "en-US") : "-"}</span>
           </div>
-          {paper.file_url && (
-            <>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">{t("papers.file")}</span>
+          <Separator />
+          <div className="flex justify-between items-center gap-3">
+            <span className="text-muted-foreground">{t("papers.file")}</span>
+            {paper.file_url ? (
+              <div className="flex items-center gap-2">
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                  {isAr ? "يوجد ملف" : "File available"}
+                </Badge>
                 <Button
                   variant="outline"
                   size="sm"
                   className="gap-2"
-                  onClick={async () => {
-                    const { data } = await supabase.storage.from("papers").createSignedUrl(paper.file_url!, 3600);
-                    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
-                    else toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
-                  }}
+                  onClick={() => openPaperFile(paper.file_url!)}
                 >
                   <FileText className="h-4 w-4" />
                   {isAr ? "تحميل الملف" : "Download File"}
                 </Button>
               </div>
-            </>
-          )}
+            ) : (
+              <span className="text-sm font-medium text-muted-foreground">
+                {isAr ? "لا يوجد ملف" : "No file"}
+              </span>
+            )}
+          </div>
         </CardContent>
       </Card>
 
