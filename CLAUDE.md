@@ -15,7 +15,7 @@ specific model:
 
 | Step | Subagent | Model | Does |
 |---|---|---|---|
-| 1. Plan | `planner` | Opus | Detailed plan + **exact expected output / acceptance criteria**. No code. |
+| 1. Plan | `planner` | Opus | TWO plans: a simple **owner plan** for approval + a **detailed execution plan** with exact acceptance criteria for the builder. No code. |
 | 2. Build | `builder` | Sonnet | Implements the approved plan. Writes the code. |
 | 3. QA | `qa` | Opus | Reviews the diff vs. acceptance criteria, runs lint/test/build, returns PASS/FAIL. No code. |
 
