@@ -1,6 +1,6 @@
 export default {
   common: {
-    appName: "نظام إدارة المجلات",
+    appName: "نظام إدارة المراكز",
     loading: "جاري التحميل...",
     save: "حفظ",
     cancel: "إلغاء",
@@ -41,7 +41,8 @@ export default {
   nav: {
     dashboard: "لوحة التحكم",
     papers: "الأبحاث",
-    journals: "المجلات",
+    journals: "المراكز",
+    inbox: "صندوق المهام",
     committees: "اللجان",
     messages: "الرسائل",
     notifications: "الإشعارات",
@@ -78,10 +79,10 @@ export default {
     },
   },
   journals: {
-    title: "المجلات",
-    newJournal: "مجلة جديدة",
-    titleAr: "اسم المجلة (عربي)",
-    titleEn: "اسم المجلة (إنجليزي)",
+    title: "المراكز",
+    newJournal: "مركز جديد",
+    titleAr: "اسم المركز (عربي)",
+    titleEn: "اسم المركز (إنجليزي)",
     issn: "الرقم التسلسلي الدولي",
     workflowStages: "مراحل سير العمل",
     addStage: "إضافة مرحلة",
@@ -167,5 +168,14 @@ export default {
     reviewer: "محكّم",
     researcher: "باحث",
     committee_member: "عضو لجنة",
+  },
+  inbox: {
+    title: "صندوق المهام",
+    reviewRequests: "طلبات تحكيم بانتظار ردك",
+    reviewing: "أبحاث تحت تحكيمك",
+    needRevision: "أبحاثي التي تحتاج تعديلاً",
+    unread: "إشعارات غير مقروءة",
+    viewAll: "عرض الكل",
+    empty: "لا توجد مهام معلقة حالياً 🎉",
   },
 } as const;

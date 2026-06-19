@@ -1,6 +1,6 @@
 export default {
   common: {
-    appName: "Journal Management System",
+    appName: "Center Management System",
     loading: "Loading...",
     save: "Save",
     cancel: "Cancel",
@@ -41,7 +41,8 @@ export default {
   nav: {
     dashboard: "Dashboard",
     papers: "Papers",
-    journals: "Journals",
+    journals: "Centers",
+    inbox: "Task Inbox",
     committees: "Committees",
     messages: "Messages",
     notifications: "Notifications",
@@ -78,10 +79,10 @@ export default {
     },
   },
   journals: {
-    title: "Journals",
-    newJournal: "New Journal",
-    titleAr: "Journal Name (Arabic)",
-    titleEn: "Journal Name (English)",
+    title: "Centers",
+    newJournal: "New Center",
+    titleAr: "Center Name (Arabic)",
+    titleEn: "Center Name (English)",
     issn: "ISSN",
     workflowStages: "Workflow Stages",
     addStage: "Add Stage",
@@ -167,5 +168,14 @@ export default {
     reviewer: "Reviewer",
     researcher: "Researcher",
     committee_member: "Committee Member",
+  },
+  inbox: {
+    title: "Task Inbox",
+    reviewRequests: "Review requests awaiting your reply",
+    reviewing: "Papers you're reviewing",
+    needRevision: "My papers needing revision",
+    unread: "Unread notifications",
+    viewAll: "View all",
+    empty: "Nothing waiting on you right now 🎉",
   },
 } as const;

@@ -17,6 +17,7 @@ import {
   Gauge,
   UserCircle,
   ClipboardCheck,
+  Inbox,
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,6 +44,7 @@ export function AppSidebar() {
   const isAdmin = hasAnyRole(["admin"]);
 
   const mainItems = [
+    { title: t("nav.inbox"), url: "/inbox", icon: Inbox },
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.myPapers"), url: "/my-papers", icon: FileText },
     { title: t("nav.submitPaper"), url: "/submit-paper", icon: Send },
