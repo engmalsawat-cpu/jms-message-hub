@@ -220,7 +220,7 @@ export default function OperationsDashboard() {
       isAr ? "العنوان (عربي)" : "Title (AR)",
       isAr ? "العنوان (إنجليزي)" : "Title (EN)",
       isAr ? "الباحث" : "Author",
-      isAr ? "المجلة" : "Journal",
+      isAr ? "المركز" : "Center",
       isAr ? "الحالة" : "Status",
       isAr ? "تاريخ التقديم" : "Submitted At",
     ];
@@ -330,7 +330,7 @@ export default function OperationsDashboard() {
 
             {/* Journal Bar */}
             <Card>
-              <CardHeader><CardTitle className="text-base">{isAr ? "الأبحاث حسب المجلة" : "Papers per Journal"}</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">{isAr ? "الأبحاث حسب المركز" : "Papers per Center"}</CardTitle></CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={journalDist} layout="vertical">
@@ -370,9 +370,9 @@ export default function OperationsDashboard() {
           <div className="flex gap-3 flex-wrap mb-4">
             <Input placeholder={t("common.search")} value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
             <Select value={journalFilter} onValueChange={setJournalFilter}>
-              <SelectTrigger className="w-48"><SelectValue placeholder={isAr ? "كل المجلات" : "All Journals"} /></SelectTrigger>
+              <SelectTrigger className="w-48"><SelectValue placeholder={isAr ? "كل المراكز" : "All Centers"} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{isAr ? "كل المجلات" : "All Journals"}</SelectItem>
+                <SelectItem value="all">{isAr ? "كل المراكز" : "All Centers"}</SelectItem>
                 {journals.map((j: any) => <SelectItem key={j.id} value={j.id}>{isAr ? j.title_ar : j.title_en}</SelectItem>)}
               </SelectContent>
             </Select>

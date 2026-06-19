@@ -24,6 +24,7 @@ import OperationsDashboard from "./pages/OperationsDashboard";
 import Profile from "./pages/Profile";
 import ReviewerDashboard from "./pages/ReviewerDashboard";
 import ReviewForm from "./pages/ReviewForm";
+import Inbox from "./pages/Inbox";
 import SeedUsers from "./pages/SeedUsers";
 import NotFound from "./pages/NotFound";
 
@@ -40,8 +41,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/seed-users" element={<SeedUsers />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/inbox" replace />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route path="/inbox" element={<Inbox />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/my-papers" element={<MyPapers />} />
               <Route path="/submit-paper" element={<SubmitPaper />} />

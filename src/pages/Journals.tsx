@@ -49,7 +49,7 @@ export default function Journals() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["journals"] });
-      toast.success(isAr ? "تم إنشاء المجلة" : "Journal created");
+      toast.success(isAr ? "تم إنشاء المركز" : "Center created");
       setCreateOpen(false);
       setForm({ title_ar: "", title_en: "", description_ar: "", description_en: "", issn: "" });
     },

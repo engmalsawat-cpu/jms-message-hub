@@ -7,7 +7,7 @@
 > what's left. Anything we agree to do gets added here. When a task is finished,
 > mark it `[x]`.
 >
-> _Last updated: 2026-06-19_
+> _Last updated: 2026-06-19 (Milestone 1 done — Centers rename + Task Inbox)_
 
 ---
 
@@ -25,7 +25,7 @@
 
 | # | Milestone / المرحلة | Status / الحالة | Effort / الجهد |
 |---|---|---|---|
-| 1 | Make it ours — Centers + Task Inbox / خليه لنا | `[ ]` Not started | 3–4 days |
+| 1 | Make it ours — Centers + Task Inbox / خليه لنا | `[x]` Done | 3–4 days |
 | 2 | Center walls / جدران المراكز | `[ ]` Not started | 3–5 days |
 | 3 | Close the gaps — voting + stages / سد الفجوات | `[ ]` Not started | 5–7 days |
 | 4 | Fit your process / مطابقة سير العمل | `[ ]` Not started | 2–3 days |
@@ -35,12 +35,12 @@
 ## Milestone 1 — Make it ours / خليه لنا
 **Goal:** Rename Journals→Centers + add a Task Inbox home screen. (3–4 days)
 
-- [ ] Rename "Journals" → "Centers" in screen text (Arabic + English) — keep DB table name as-is
-- [ ] Build Task Inbox home screen ("صندوق المهام") — landing page after login
-  - [ ] Show my pending review requests
-  - [ ] Show papers I'm assigned to
-  - [ ] Show my papers needing revision
-  - [ ] Show unread notifications
+- [x] Rename "Journals" → "Centers" in screen text (Arabic + English) — keep DB table name as-is
+- [x] Build Task Inbox home screen ("صندوق المهام") — landing page after login
+  - [x] Show my pending review requests
+  - [x] Show papers I'm assigned to (= reviews I accepted, awaiting my report)
+  - [x] Show my papers needing revision
+  - [x] Show unread notifications
 
 ## Milestone 2 — Center walls / جدران المراكز
 **Goal:** Each center only sees its own data; HQ admin sees everything. (3–5 days)
@@ -76,6 +76,8 @@
 > أي مهمة جديدة نتفق عليها نضيفها هنا مع التاريخ.
 
 - [x] Create this shared task & milestone tracker file — _2026-06-19_
+- [x] Set up Plan → Build → QA workflow: 3 subagents (`planner`/Opus, `builder`/Sonnet, `qa`/Opus) + automatic pre-commit QA gate + `CLAUDE.md` — _2026-06-19_
+- [x] Planner produces two plans: a simple owner plan + a detailed execution plan — _2026-06-19_
 
 ---
 
@@ -84,3 +86,6 @@
 > ملخص سريع لكل شي خلصناه (للرجوع السريع).
 
 - **2026-06-19** — Added `PROJECT-TASKS.md` (this shared tracking board).
+- **2026-06-19** — Added plan/build/QA subagents (Opus/Sonnet/Opus), automatic pre-commit QA gate (`.claude/hooks/qa-precommit.mjs`), and `CLAUDE.md` workflow doc.
+- **2026-06-19** — Planner now outputs two plans (owner + execution).
+- **2026-06-19** — Completed Milestone 1: renamed Journals→Centers (AR+EN display text) and added the Task Inbox (`صندوق المهام`) landing page. QA: PASS (mechanical lint/test/build could not run in the build container — deps not installable there; re-run locally).
