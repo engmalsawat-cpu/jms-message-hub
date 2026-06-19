@@ -1140,6 +1140,21 @@ export type Database = {
         Args: { _paper_id: string; _user_id: string }
         Returns: boolean
       }
+      can_vote_on_committee_paper: {
+        Args: { _committee_paper_id: string; _user_id: string }
+        Returns: boolean
+      }
+      get_committee_paper_tally: {
+        Args: { _committee_paper_id: string }
+        Returns: {
+          abstain_count: number
+          approve_count: number
+          approve_revisions_count: number
+          cast_count: number
+          member_count: number
+          reject_count: number
+        }[]
+      }
       has_any_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
