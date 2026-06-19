@@ -329,7 +329,13 @@ export default function PaperDetail() {
       {/* Editor Actions */}
       {isEditor && (
         <div className="flex gap-2 flex-wrap">
-          <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+          <Dialog open={statusDialogOpen} onOpenChange={(o) => {
+            setStatusDialogOpen(o);
+            if (o) {
+              setNewStatus(paper.status);
+              setNewStageId(paper.current_stage_id || "");
+            }
+          }}>
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <Send className="h-4 w-4" />
@@ -384,7 +390,7 @@ export default function PaperDetail() {
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <UserPlus className="h-4 w-4" />
-                {isAr ? "تعيين محكّم" : "Assign Reviewer"}
+                {isAr ? "تعيين دور للبحث" : "Assign Paper Role"}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -392,6 +398,11 @@ export default function PaperDetail() {
                 <DialogTitle>{isAr ? "تعيين دور للبحث" : "Assign Paper Role"}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md leading-relaxed">
+                  {isAr
+                    ? "تعيين شخص من فريق المجلة كمسؤول إداري دائم عن البحث (محرر مسؤول أو منسق متابعة). لإرسال البحث لمحكم علمي لتقييمه، استخدم بدلاً من ذلك زر «إرسال طلب تحكيم» في قسم طلبات التحكيم بالأسفل."
+                    : "Assign a journal team member as a permanent handler for this paper (handling editor or coordinator). To send the paper to an external reviewer for evaluation, use the \"Send Review Request\" button in the Review Requests section below."}
+                </p>
                 <div className="space-y-2">
                   <Label>{t("auth.email")}</Label>
                   <Input value={assignEmail} onChange={(e) => setAssignEmail(e.target.value)} type="email" dir="ltr" />
@@ -401,8 +412,8 @@ export default function PaperDetail() {
                   <Select value={assignRole} onValueChange={setAssignRole}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="reviewer">{t("roles.reviewer")}</SelectItem>
-                      <SelectItem value="editor">{isAr ? "محرر" : "Editor"}</SelectItem>
+                      <SelectItem value="editor">{isAr ? "محرر مسؤول" : "Handling Editor"}</SelectItem>
+                      <SelectItem value="reviewer">{isAr ? "محكّم (للسجل فقط)" : "Reviewer (record only)"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
