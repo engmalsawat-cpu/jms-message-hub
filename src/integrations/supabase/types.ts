@@ -688,6 +688,13 @@ export type Database = {
             referencedRelation: "journals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "papers_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
