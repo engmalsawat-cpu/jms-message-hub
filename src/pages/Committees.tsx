@@ -43,10 +43,24 @@ export default function Committees() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("committees")
-        .select("*, journals(title_ar, title_en), committee_members(id, user_id, is_head, profiles:user_id(full_name, email))")
+        .select("*, journals(title_ar, title_en), committee_members(id, user_id, is_head)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      const userIds = Array.from(
+        new Set((data ?? []).flatMap((c: any) => (c.committee_members ?? []).map((m: any) => m.user_id)))
+      );
+      let profilesMap: Record<string, { full_name: string | null; email: string | null }> = {};
+      if (userIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", userIds);
+        profilesMap = Object.fromEntries((profs ?? []).map((p: any) => [p.id, { full_name: p.full_name, email: p.email }]));
+      }
+      return (data ?? []).map((c: any) => ({
+        ...c,
+        committee_members: (c.committee_members ?? []).map((m: any) => ({ ...m, profiles: profilesMap[m.user_id] ?? null })),
+      }));
     },
   });
 
