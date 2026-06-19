@@ -104,6 +104,8 @@ export default {
     confirmDeleteStage: "Are you sure you want to delete this stage?",
     noStages: "No stages defined",
     manageStages: "Manage Stages",
+    loadDefaultStages: "Load standard stages",
+    defaultStagesLoaded: "Standard stages loaded",
   },
   committees: {
     title: "Committees",
