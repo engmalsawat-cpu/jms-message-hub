@@ -1,0 +1,2 @@
+INSERT INTO public.submission_windows (journal_id, title, opens_at, closes_at)
+VALUES ('a1b2c3d4-0001-4000-8000-000000000001', 'العدد 16 - 2026 (نافذة الاختبار)', now() - interval '1 day', now() + interval '60 days');
