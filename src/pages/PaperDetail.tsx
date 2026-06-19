@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Database } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +44,8 @@ const statusFlow = [
   "withdrawn",
 ];
 
+type PaperUpdate = Database["public"]["Tables"]["papers"]["Update"];
+
 export default function PaperDetail() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
@@ -50,7 +53,7 @@ export default function PaperDetail() {
   const isAr = i18n.language === "ar";
   const BackArrow = isAr ? ArrowRight : ArrowLeft;
   const queryClient = useQueryClient();
-  const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor"]);
+  const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
 
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
@@ -148,7 +151,7 @@ export default function PaperDetail() {
 
   const changeStatus = useMutation({
     mutationFn: async () => {
-      const papersUpdate: Record<string, any> = { status: newStatus as any };
+      const papersUpdate: PaperUpdate = { status: newStatus as PaperUpdate["status"] };
       if (newStageId) {
         papersUpdate.current_stage_id = newStageId;
       }

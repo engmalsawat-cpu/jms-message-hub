@@ -10,7 +10,7 @@ export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const { user, profile, roles, hasAnyRole } = useAuth();
   const isAr = i18n.language === "ar";
-  const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor"]);
+  const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
 
   const { data: myPapers } = useQuery({
     queryKey: ["my-papers-count", user?.id],

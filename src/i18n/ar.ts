@@ -170,6 +170,7 @@ export default {
     reviewer: "محكّم",
     researcher: "باحث",
     committee_member: "عضو لجنة",
+    hq_admin: "مدير المقر الرئيسي",
   },
   inbox: {
     title: "صندوق المهام",

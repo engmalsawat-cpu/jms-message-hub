@@ -1136,6 +1136,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_paper_as_reviewer: {
+        Args: { _paper_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_any_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]

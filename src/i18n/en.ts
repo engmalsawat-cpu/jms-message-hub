@@ -170,6 +170,7 @@ export default {
     reviewer: "Reviewer",
     researcher: "Researcher",
     committee_member: "Committee Member",
+    hq_admin: "HQ Admin",
   },
   inbox: {
     title: "Task Inbox",

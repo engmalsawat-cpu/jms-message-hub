@@ -10,12 +10,13 @@ import { toast } from "sonner";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
 const QUICK_LOGINS = [
-  { email: "admin@test.com", label: "Admin", color: "bg-red-100 text-red-800 hover:bg-red-200" },
-  { email: "editor@test.com", label: "Editor", color: "bg-blue-100 text-blue-800 hover:bg-blue-200" },
-  { email: "managing@test.com", label: "Managing", color: "bg-purple-100 text-purple-800 hover:bg-purple-200" },
-  { email: "reviewer@test.com", label: "Reviewer", color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200" },
-  { email: "researcher@test.com", label: "Researcher", color: "bg-green-100 text-green-800 hover:bg-green-200" },
-  { email: "committee@test.com", label: "Committee", color: "bg-orange-100 text-orange-800 hover:bg-orange-200" },
+  { id: "hq", email: "admin@test.com", label: "HQ", color: "bg-teal-100 text-teal-800 hover:bg-teal-200" },
+  { id: "admin", email: "admin@test.com", label: "Admin", color: "bg-red-100 text-red-800 hover:bg-red-200" },
+  { id: "editor", email: "editor@test.com", label: "Editor", color: "bg-blue-100 text-blue-800 hover:bg-blue-200" },
+  { id: "managing", email: "managing@test.com", label: "Managing", color: "bg-purple-100 text-purple-800 hover:bg-purple-200" },
+  { id: "reviewer", email: "reviewer@test.com", label: "Reviewer", color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200" },
+  { id: "researcher", email: "researcher@test.com", label: "Researcher", color: "bg-green-100 text-green-800 hover:bg-green-200" },
+  { id: "committee", email: "committee@test.com", label: "Committee", color: "bg-orange-100 text-orange-800 hover:bg-orange-200" },
 ];
 
 export default function Login() {
@@ -40,7 +41,7 @@ export default function Login() {
   };
 
   const quickLogin = async (acc: typeof QUICK_LOGINS[0]) => {
-    setQuickLoading(acc.email);
+    setQuickLoading(acc.id);
     const { error } = await supabase.auth.signInWithPassword({ email: acc.email, password: "123456789" });
     if (error) {
       toast.error(error.message);
@@ -88,14 +89,14 @@ export default function Login() {
           <div className="flex flex-wrap gap-2 justify-center">
             {QUICK_LOGINS.map((acc) => (
               <Button
-                key={acc.email}
+                key={acc.id}
                 variant="ghost"
                 size="sm"
                 className={`h-7 px-3 text-xs rounded-full ${acc.color}`}
                 disabled={quickLoading !== null}
                 onClick={() => quickLogin(acc)}
               >
-                {quickLoading === acc.email ? "..." : acc.label}
+                  {quickLoading === acc.id ? "..." : acc.label}
               </Button>
             ))}
           </div>
