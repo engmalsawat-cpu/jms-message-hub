@@ -80,7 +80,7 @@ export default function PaperDetail() {
   const [newStageId, setNewStageId] = useState("");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assignEmail, setAssignEmail] = useState("");
-  const [assignRole, setAssignRole] = useState("reviewer");
+  const [assignRole, setAssignRole] = useState("editor");
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [committeeDialogOpen, setCommitteeDialogOpen] = useState(false);
