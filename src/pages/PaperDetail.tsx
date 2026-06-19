@@ -390,12 +390,12 @@ export default function PaperDetail() {
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <UserPlus className="h-4 w-4" />
-                {isAr ? "تعيين دور للبحث" : "Assign Paper Role"}
+                {isAr ? "تعيين منسق للبحث" : "Assign Paper Role"}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{isAr ? "تعيين دور للبحث" : "Assign Paper Role"}</DialogTitle>
+                <DialogTitle>{isAr ? "تعيين منسق للبحث" : "Assign Paper Role"}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md leading-relaxed">
