@@ -22,7 +22,6 @@ export function RoleSwitcher() {
     try {
       await supabase.auth.signOut();
       const { error } = await supabase.auth.signInWithPassword({
-        email,
         email: account.email,
         password: "123456789",
       });
