@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 const ACCOUNTS = [
-  { email: "hq_admin@test.com", label: "HQ", color: "bg-teal-100 text-teal-800 hover:bg-teal-200" },
+  { email: "admin@test.com", label: "HQ", color: "bg-teal-100 text-teal-800 hover:bg-teal-200" },
   { email: "admin@test.com", label: "Admin", color: "bg-red-100 text-red-800 hover:bg-red-200" },
   { email: "editor@test.com", label: "Editor", color: "bg-blue-100 text-blue-800 hover:bg-blue-200" },
   { email: "managing@test.com", label: "Managing", color: "bg-purple-100 text-purple-800 hover:bg-purple-200" },

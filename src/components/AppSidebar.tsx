@@ -40,8 +40,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
 
-  const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor"]);
-  const isAdmin = hasAnyRole(["admin"]);
+  const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
+  const isAdmin = hasAnyRole(["admin", "hq_admin"]);
 
   const mainItems = [
     { title: t("nav.inbox"), url: "/inbox", icon: Inbox },
