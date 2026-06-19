@@ -55,6 +55,7 @@ export default function PaperDetail() {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [statusNotes, setStatusNotes] = useState("");
+  const [newStageId, setNewStageId] = useState("");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assignEmail, setAssignEmail] = useState("");
   const [assignRole, setAssignRole] = useState("reviewer");
@@ -131,16 +132,36 @@ export default function PaperDetail() {
     enabled: !!id,
   });
 
+  const { data: journalStages = [] } = useQuery({
+    queryKey: ["workflow-stages-for-paper", paper?.journal_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workflow_stages")
+        .select("id, name_ar, name_en, stage_order")
+        .eq("journal_id", paper!.journal_id)
+        .order("stage_order", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!paper && isEditor,
+  });
+
   const changeStatus = useMutation({
     mutationFn: async () => {
+      const papersUpdate: Record<string, any> = { status: newStatus as any };
+      if (newStageId) {
+        papersUpdate.current_stage_id = newStageId;
+      }
+
       const { error } = await supabase
         .from("papers")
-        .update({ status: newStatus as any })
+        .update(papersUpdate)
         .eq("id", id!);
       if (error) throw error;
 
       await supabase.from("paper_stage_history").insert({
         paper_id: id!,
+        stage_id: newStageId || null,
         action: `Status changed to ${newStatus}`,
         notes: statusNotes || null,
         performed_by: user!.id,
@@ -152,6 +173,7 @@ export default function PaperDetail() {
       toast.success(isAr ? "تم تحديث الحالة" : "Status updated");
       setStatusDialogOpen(false);
       setStatusNotes("");
+      setNewStageId("");
     },
     onError: (err: any) => toast.error(err.message),
   });
@@ -263,6 +285,23 @@ export default function PaperDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("papers.moveToStage")}</Label>
+                  {journalStages.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-2">{isAr ? "لا توجد مراحل معرّفة لهذا المركز" : "No stages defined for this center"}</p>
+                  ) : (
+                    <Select value={newStageId} onValueChange={setNewStageId}>
+                      <SelectTrigger><SelectValue placeholder={t("papers.stageOptional")} /></SelectTrigger>
+                      <SelectContent>
+                        {journalStages.map((stage: any) => (
+                          <SelectItem key={stage.id} value={stage.id}>
+                            {isAr ? stage.name_ar : stage.name_en}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>{isAr ? "ملاحظات" : "Notes"}</Label>

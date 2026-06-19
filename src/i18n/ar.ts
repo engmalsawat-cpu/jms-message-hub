@@ -77,6 +77,8 @@ export default {
       published: "منشور",
       withdrawn: "مسحوب",
     },
+    moveToStage: "الانتقال إلى مرحلة",
+    stageOptional: "المرحلة (اختياري)",
   },
   journals: {
     title: "المراكز",

@@ -77,6 +77,8 @@ export default {
       published: "Published",
       withdrawn: "Withdrawn",
     },
+    moveToStage: "Move to stage",
+    stageOptional: "Stage (optional)",
   },
   journals: {
     title: "Centers",
