@@ -7,7 +7,7 @@
 > what's left. Anything we agree to do gets added here. When a task is finished,
 > mark it `[x]`.
 >
-> _Last updated: 2026-06-19_
+> _Last updated: 2026-06-19 (QA workflow + tracker added)_
 
 ---
 
@@ -76,6 +76,8 @@
 > أي مهمة جديدة نتفق عليها نضيفها هنا مع التاريخ.
 
 - [x] Create this shared task & milestone tracker file — _2026-06-19_
+- [x] Set up Plan → Build → QA workflow: 3 subagents (`planner`/Opus, `builder`/Sonnet, `qa`/Opus) + automatic pre-commit QA gate + `CLAUDE.md` — _2026-06-19_
+- [x] Planner produces two plans: a simple owner plan + a detailed execution plan — _2026-06-19_
 
 ---
 
@@ -84,3 +86,5 @@
 > ملخص سريع لكل شي خلصناه (للرجوع السريع).
 
 - **2026-06-19** — Added `PROJECT-TASKS.md` (this shared tracking board).
+- **2026-06-19** — Added plan/build/QA subagents (Opus/Sonnet/Opus), automatic pre-commit QA gate (`.claude/hooks/qa-precommit.mjs`), and `CLAUDE.md` workflow doc.
+- **2026-06-19** — Planner now outputs two plans (owner + execution).
