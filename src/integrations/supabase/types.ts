@@ -1159,6 +1159,7 @@ export type Database = {
         | "reviewer"
         | "researcher"
         | "committee_member"
+        | "hq_admin"
       journal_status: "active" | "inactive" | "archived"
       paper_status:
         | "draft"
@@ -1316,6 +1317,7 @@ export const Constants = {
         "reviewer",
         "researcher",
         "committee_member",
+        "hq_admin",
       ],
       journal_status: ["active", "inactive", "archived"],
       paper_status: [
