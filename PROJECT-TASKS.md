@@ -7,7 +7,7 @@
 > what's left. Anything we agree to do gets added here. When a task is finished,
 > mark it `[x]`.
 >
-> _Last updated: 2026-06-19 (Milestone 2 built — center-walls RLS, awaiting DB apply)_
+> _Last updated: 2026-06-19 (M3 stage tracking done; committee voting next)_
 
 ---
 
@@ -27,7 +27,7 @@
 |---|---|---|---|
 | 1 | Make it ours — Centers + Task Inbox / خليه لنا | `[x]` Done | 3–4 days |
 | 2 | Center walls / جدران المراكز | `[~]` Built — awaiting DB apply | 3–5 days |
-| 3 | Close the gaps — voting + stages / سد الفجوات | `[ ]` Not started | 5–7 days |
+| 3 | Close the gaps — voting + stages / سد الفجوات | `[~]` Stage tracking done; voting next | 5–7 days |
 | 4 | Fit your process / مطابقة سير العمل | `[ ]` Not started | 2–3 days |
 
 ---
@@ -59,9 +59,9 @@
   - [ ] Members cast votes with justification
   - [ ] App tallies against the committee rule (majority / unanimous / minimum votes)
   - [ ] Record the decision
-- [ ] Real stage tracking:
-  - [ ] Moving a paper actually sets its current stage
-  - [ ] Write an audit entry on each move
+- [x] Real stage tracking:
+  - [x] Moving a paper actually sets its current stage
+  - [x] Write an audit entry on each move
 
 ## Milestone 4 — Fit your process / مطابقة سير العمل
 **Goal:** Configure stages + map roles to the real review→committee→decision flow. (2–3 days)
@@ -89,4 +89,5 @@
 - **2026-06-19** — Added plan/build/QA subagents (Opus/Sonnet/Opus), automatic pre-commit QA gate (`.claude/hooks/qa-precommit.mjs`), and `CLAUDE.md` workflow doc.
 - **2026-06-19** — Planner now outputs two plans (owner + execution).
 - **2026-06-19** — Completed Milestone 1: renamed Journals→Centers (AR+EN display text) and added the Task Inbox (`صندوق المهام`) landing page. QA: PASS (mechanical lint/test/build could not run in the build container — deps not installable there; re-run locally).
-- **2026-06-19** — Built Milestone 2 (Center walls): two Supabase migrations — `hq_admin` role + full RLS rewrite (membership-gated, 19 tables) with auto-backfill of `journal_members`. QA: PASS (SQL reviewed, not executed). **Pending: owner applies the migrations to live Supabase and verifies with test logins.** Note: global-role editors with no papers/committees/reviews need a manual membership grant or `hq_admin`.
+- **2026-06-19** — Built Milestone 2 (Center walls): two Supabase migrations — `hq_admin` role + full RLS rewrite (membership-gated, 19 tables) with auto-backfill of `journal_members`. QA: PASS (SQL reviewed, not executed). **Applied to live Supabase by owner; owner is now hq_admin.** Three role test accounts (committee/editor/managing) added to journals to avoid lockout.
+- **2026-06-19** — M3 Feature 2 (Real stage tracking): the "Change Status" dialog now also moves a paper to a real configured stage (`current_stage_id`) and logs it to `paper_stage_history`. QA: PASS (mechanical checks couldn't run in container). No DB change needed. Committee voting (Feature 1) is next.
