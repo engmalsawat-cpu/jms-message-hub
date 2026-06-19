@@ -17,9 +17,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   ArrowRight, ArrowLeft, Clock, CheckCircle, FileText,
-  UserPlus, Send, MessageSquare, AlertTriangle, Star, Eye, ClipboardCheck
+  UserPlus, Send, MessageSquare, AlertTriangle, Star, Eye, ClipboardCheck, Vote
 } from "lucide-react";
 import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
+import { CommitteeVotingPanel } from "@/components/CommitteeVotingPanel";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -64,6 +65,8 @@ export default function PaperDetail() {
   const [assignRole, setAssignRole] = useState("reviewer");
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageBody, setMessageBody] = useState("");
+  const [committeeDialogOpen, setCommitteeDialogOpen] = useState(false);
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState("");
 
   const { data: paper, isLoading } = useQuery({
     queryKey: ["paper", id],
@@ -147,6 +150,48 @@ export default function PaperDetail() {
       return data || [];
     },
     enabled: !!paper && isEditor,
+  });
+
+  const { data: journalCommittees = [] } = useQuery({
+    queryKey: ["committees-for-journal", paper?.journal_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("committees")
+        .select("id, name_ar, name_en")
+        .eq("journal_id", paper!.journal_id)
+        .order("name_ar", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!paper && isEditor,
+  });
+
+  const sendToCommittee = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("committee_papers").insert({
+        committee_id: selectedCommitteeId,
+        paper_id: id!,
+        status: "pending",
+      });
+      if (error) {
+        // UNIQUE(committee_id, paper_id) violation → code 23505
+        if (error.code === "23505") {
+          throw new Error(
+            isAr
+              ? "هذا البحث محال مسبقاً إلى هذه اللجنة"
+              : "This paper is already assigned to this committee"
+          );
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["committee-papers", id] });
+      toast.success(isAr ? "تم إرسال البحث إلى اللجنة" : "Paper sent to committee");
+      setCommitteeDialogOpen(false);
+      setSelectedCommitteeId("");
+    },
+    onError: (err: any) => toast.error(err.message),
   });
 
   const changeStatus = useMutation({
@@ -369,6 +414,48 @@ export default function PaperDetail() {
               </div>
             </DialogContent>
           </Dialog>
+
+          <Dialog open={committeeDialogOpen} onOpenChange={setCommitteeDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Vote className="h-4 w-4" />
+                {isAr ? "إرسال إلى لجنة" : "Send to Committee"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{isAr ? "إرسال البحث إلى لجنة" : "Send Paper to Committee"}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>{isAr ? "اختر اللجنة" : "Select a committee"}</Label>
+                  {journalCommittees.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-2">
+                      {isAr ? "لا توجد لجان لهذا المركز" : "No committees for this center"}
+                    </p>
+                  ) : (
+                    <Select value={selectedCommitteeId} onValueChange={setSelectedCommitteeId}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {journalCommittees.map((c: any) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {isAr ? c.name_ar : c.name_en}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <Button
+                  onClick={() => sendToCommittee.mutate()}
+                  disabled={!selectedCommitteeId || sendToCommittee.isPending}
+                  className="w-full"
+                >
+                  {sendToCommittee.isPending ? t("common.loading") : t("common.confirm")}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
 
@@ -461,6 +548,11 @@ export default function PaperDetail() {
       {/* Review Requests (Editor View) */}
       {isEditor && (
         <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
+      )}
+
+      {/* Committee Voting Panel — shown to committee members and editors */}
+      {paper && (
+        <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
       )}
 
       {/* Review Reports (Editor View) */}
