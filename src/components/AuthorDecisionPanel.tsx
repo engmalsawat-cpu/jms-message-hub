@@ -146,14 +146,14 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId, journalId }
         major_revision: "revision_required",
         reject: "rejected",
       };
+      // Only advance the workflow stage on accept (→ Publication).
+      // Revision decisions keep the paper in its current stage (Peer Review) —
+      // it will move to "Final Review" only after the author resubmits.
+      // Reject keeps the stage as-is for the record.
       const nextStage =
         decision === "accept"
           ? journalStages.find((stage: any) => stage.stage_type === "publication")
-          : journalStages.find((stage: any) =>
-              [stage.name_ar, stage.name_en].some((name) =>
-                (name || "").toLowerCase().includes("final") || (name || "").includes("نهائي")
-              )
-            ) || journalStages[journalStages.length - 1];
+          : null;
       const paperUpdate: any = {
         status: statusMap[decision as Decision],
         updated_at: new Date().toISOString(),
@@ -165,10 +165,16 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId, journalId }
         .eq("id", paperId);
       if (pErr) throw pErr;
 
-      // History entry
+      // History entry — log against the resulting stage (new one on accept,
+      // current one otherwise) so the timeline stays coherent.
+      const { data: currentPaper } = await supabase
+        .from("papers")
+        .select("current_stage_id")
+        .eq("id", paperId)
+        .maybeSingle();
       await supabase.from("paper_stage_history").insert({
         paper_id: paperId,
-        stage_id: nextStage?.id || null,
+        stage_id: nextStage?.id || currentPaper?.current_stage_id || null,
         action: "author_decision_sent",
         notes: `${decisionLabels(isAr)[decision as Decision]} — ${message.trim().slice(0, 200)}${message.length > 200 ? "..." : ""}`,
         performed_by: user!.id,
