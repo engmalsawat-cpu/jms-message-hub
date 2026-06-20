@@ -72,6 +72,11 @@ export default function PaperDetail() {
   const BackArrow = isAr ? ArrowRight : ArrowLeft;
   const queryClient = useQueryClient();
   const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
+  // Committee-only view: a user who is on a committee for this paper but is
+  // neither editor nor the author. They should only see what's needed to vote:
+  // the paper file, reviewer reports, and the voting panel.
+  const isCommitteeOnly =
+    !isEditor && hasAnyRole(["committee_member"]);
 
   const downloadPaperFile = async (filePath: string) => {
     const { data, error } = await supabase.storage.from("papers").download(filePath);
@@ -195,7 +200,7 @@ export default function PaperDetail() {
         ),
       }));
     },
-    enabled: !!id && isEditor,
+    enabled: !!id && (isEditor || isCommitteeOnly),
   });
 
   const { data: paperRoles } = useQuery({
