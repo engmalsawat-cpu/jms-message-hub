@@ -226,8 +226,20 @@ function ActiveReviewCard({ request, isAr }: any) {
             size="sm"
             className="gap-2"
             onClick={async () => {
-              const { data } = await supabase.storage.from("papers").createSignedUrl(request.papers.file_url, 3600);
-              if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+              const { data, error } = await supabase.storage
+                .from("papers")
+                .createSignedUrl(request.papers.file_url, 3600, { download: true });
+              if (error || !data?.signedUrl) {
+                toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
+                return;
+              }
+              const a = document.createElement("a");
+              a.href = data.signedUrl;
+              a.rel = "noopener";
+              a.target = "_blank";
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
             }}
           >
             <Eye className="h-4 w-4" />
