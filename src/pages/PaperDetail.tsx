@@ -623,11 +623,6 @@ export default function PaperDetail() {
         <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
       )}
 
-      {/* Committee Voting Panel — shown to committee members and editors */}
-      {paper && (
-        <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
-      )}
-
       {/* Review Reports (Editor View) */}
       {isEditor && reviewReports.length > 0 && (
         <Card>
@@ -726,6 +721,11 @@ export default function PaperDetail() {
             })}
           </CardContent>
         </Card>
+      )}
+
+      {/* Committee Voting Panel — shown to committee members and editors */}
+      {paper && (
+        <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
       )}
 
       {/* Assigned Roles (Editor View) */}
