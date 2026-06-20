@@ -12,7 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ArrowRight, ArrowLeft, Save, Send, Loader2, FileText, Upload, Download } from "lucide-react";
+import { ArrowRight, ArrowLeft, Save, Send, Loader2, FileText, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function ReviewForm() {
