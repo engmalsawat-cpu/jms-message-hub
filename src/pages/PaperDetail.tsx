@@ -48,6 +48,19 @@ const statusFlow = [
 
 type PaperUpdate = Database["public"]["Tables"]["papers"]["Update"];
 
+function translateAction(action: string, isAr: boolean): string {
+  const map: Record<string, { ar: string; en: string }> = {
+    author_decision_sent: { ar: "إرسال قرار التحكيم للباحث", en: "Review decision sent to author" },
+    committee_decision: { ar: "قرار اللجنة", en: "Committee decision" },
+  };
+  const entry = map[action];
+  if (entry) return isAr ? entry.ar : entry.en;
+  // "Status changed to X" → localize
+  const m = action.match(/^Status changed to (\w+)$/);
+  if (m) return isAr ? `تغيير الحالة إلى: ${m[1]}` : action;
+  return action;
+}
+
 export default function PaperDetail() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
@@ -806,7 +819,7 @@ export default function PaperDetail() {
                     {i < history.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
                   </div>
                   <div className="pb-4 flex-1">
-                    <p className="font-medium">{h.action}</p>
+                    <p className="font-medium">{translateAction(h.action, isAr)}</p>
                     {h.workflow_stages && (
                       <p className="text-sm text-muted-foreground">
                         {isAr ? h.workflow_stages.name_ar : h.workflow_stages.name_en}

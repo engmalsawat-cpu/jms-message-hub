@@ -124,12 +124,25 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
       });
       if (dErr) throw dErr;
 
+      // Auto-update paper status based on decision
+      const statusMap: Record<Decision, string> = {
+        accept: "accepted",
+        minor_revision: "revision_required",
+        major_revision: "revision_required",
+        reject: "rejected",
+      };
+      const { error: pErr } = await supabase
+        .from("papers")
+        .update({ status: statusMap[decision as Decision] as any })
+        .eq("id", paperId);
+      if (pErr) throw pErr;
+
       // History entry
       await supabase.from("paper_stage_history").insert({
         paper_id: paperId,
         stage_id: null,
         action: "author_decision_sent",
-        notes: `${(isAr ? decisionLabels(true) : decisionLabels(false))[decision as Decision]}`,
+        notes: `${decisionLabels(isAr)[decision as Decision]} — ${message.trim().slice(0, 200)}${message.length > 200 ? "..." : ""}`,
         performed_by: user!.id,
       });
 
@@ -149,6 +162,7 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["author-decisions", paperId] });
       queryClient.invalidateQueries({ queryKey: ["paper-history", paperId] });
+      queryClient.invalidateQueries({ queryKey: ["paper", paperId] });
       toast.success(isAr ? "تم إرسال القرار والملاحظات للباحث" : "Decision and comments sent to author");
       setDecision("");
       setMessage("");
