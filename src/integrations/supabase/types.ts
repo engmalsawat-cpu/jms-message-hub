@@ -1237,6 +1237,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_committee_member_for_paper: {
+        Args: { _paper_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_hq_admin: { Args: { _user_id: string }; Returns: boolean }
       is_member_of_journal: {
         Args: { _journal_id: string; _user_id: string }
