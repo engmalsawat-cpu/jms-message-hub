@@ -201,6 +201,14 @@ export default function ReviewForm() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm">{isAr ? request.papers?.abstract_ar : request.papers?.abstract_en}</p>
+          <div className="flex gap-4 text-sm text-muted-foreground">
+            {request.papers?.page_count != null && (
+              <span>{isAr ? "عدد الصفحات:" : "Pages:"} {request.papers.page_count}</span>
+            )}
+            {request.papers?.word_count != null && (
+              <span>{isAr ? "عدد الكلمات:" : "Words:"} {request.papers.word_count}</span>
+            )}
+          </div>
           {request.papers?.file_url && (
             <Button
               variant="outline"
