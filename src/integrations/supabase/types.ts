@@ -632,12 +632,14 @@ export type Database = {
           journal_id: string
           keywords: string[] | null
           metadata: Json | null
+          page_count: number | null
           status: Database["public"]["Enums"]["paper_status"]
           submitted_at: string | null
           submitted_by: string
           title_ar: string | null
           title_en: string | null
           updated_at: string
+          word_count: number | null
         }
         Insert: {
           abstract_ar?: string | null
@@ -649,12 +651,14 @@ export type Database = {
           journal_id: string
           keywords?: string[] | null
           metadata?: Json | null
+          page_count?: number | null
           status?: Database["public"]["Enums"]["paper_status"]
           submitted_at?: string | null
           submitted_by: string
           title_ar?: string | null
           title_en?: string | null
           updated_at?: string
+          word_count?: number | null
         }
         Update: {
           abstract_ar?: string | null
@@ -666,12 +670,14 @@ export type Database = {
           journal_id?: string
           keywords?: string[] | null
           metadata?: Json | null
+          page_count?: number | null
           status?: Database["public"]["Enums"]["paper_status"]
           submitted_at?: string | null
           submitted_by?: string
           title_ar?: string | null
           title_en?: string | null
           updated_at?: string
+          word_count?: number | null
         }
         Relationships: [
           {
