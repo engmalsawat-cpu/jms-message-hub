@@ -29,7 +29,7 @@ export function PaperStatusSummary({ paperId, paperStatus, isEditor }: Props) {
         supabase.from("review_requests").select("id, status").eq("paper_id", paperId),
         supabase.from("review_reports").select("id, is_submitted, recommendation").eq("paper_id", paperId),
         supabase.from("committee_papers").select("id").eq("paper_id", paperId),
-        supabase.from("author_decisions").select("id, decision, created_at, acknowledged_at").eq("paper_id", paperId).order("created_at", { ascending: false }),
+        supabase.from("author_decisions").select("id, decision, created_at").eq("paper_id", paperId).order("created_at", { ascending: false }),
       ]);
 
       const committeeIds = (cps.data || []).map((c) => c.id);
@@ -113,17 +113,20 @@ export function PaperStatusSummary({ paperId, paperStatus, isEditor }: Props) {
       : `Decision (${lastDecision.decision}) sent on ${dateStr}`;
   }
 
-  // 4. Author response
+  // 4. Author response (inferred from paper status)
   let authorState: RowState = "todo";
   let authorText: string;
   if (!lastDecision) {
     authorText = isAr ? "—" : "—";
-  } else if (lastDecision.acknowledged_at) {
+  } else if (paperStatus === "revised" || paperStatus === "accepted" || paperStatus === "published") {
     authorState = "done";
-    authorText = isAr ? "استلم الباحث القرار" : "Author acknowledged the decision";
+    authorText = isAr ? "ردّ الباحث / أعاد التقديم" : "Author responded / resubmitted";
+  } else if (paperStatus === "withdrawn") {
+    authorState = "done";
+    authorText = isAr ? "سحب الباحث البحث" : "Author withdrew the paper";
   } else {
     authorState = "pending";
-    authorText = isAr ? "لم يستلم الباحث القرار بعد" : "Author has not opened the decision yet";
+    authorText = isAr ? "بانتظار رد الباحث" : "Awaiting author response";
   }
 
   // Suggested next action (editor only)
@@ -137,8 +140,6 @@ export function PaperStatusSummary({ paperId, paperStatus, isEditor }: Props) {
       nextAction = isAr ? "بانتظار اكتمال تصويت اللجنة" : "Waiting for committee voting to complete";
     } else if (data.committeePapers.length > 0 && !lastDecision) {
       nextAction = isAr ? "أرسل قرار اللجنة إلى الباحث" : "Send the committee's decision to the author";
-    } else if (lastDecision && !lastDecision.acknowledged_at) {
-      nextAction = isAr ? "بانتظار اطلاع الباحث على القرار" : "Waiting for the author to acknowledge";
     } else if (paperStatus === "revision_required") {
       nextAction = isAr ? "بانتظار تعديلات الباحث" : "Waiting for the author's revisions";
     }
