@@ -887,8 +887,6 @@ export default function PaperDetail() {
           </Accordion>
         </div>
 
-        {/* Sidebar */}
-        {sidebar}
       </div>
     </div>
   );
