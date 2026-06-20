@@ -26,6 +26,8 @@ export default function SubmitPaper() {
     abstract_ar: "",
     abstract_en: "",
     keywords: "",
+    page_count: "",
+    word_count: "",
   });
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -66,6 +68,8 @@ export default function SubmitPaper() {
         abstract_en: form.abstract_en,
         keywords: form.keywords.split(",").map((k) => k.trim()).filter(Boolean),
         file_url: fileUrl,
+        page_count: form.page_count ? parseInt(form.page_count, 10) : null,
+        word_count: form.word_count ? parseInt(form.word_count, 10) : null,
         status: "submitted",
         submitted_at: new Date().toISOString(),
       });
@@ -135,8 +139,36 @@ export default function SubmitPaper() {
               />
             </div>
 
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{isAr ? "عدد الصفحات" : "Page count"}</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.page_count}
+                  onChange={(e) => setForm({ ...form, page_count: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{isAr ? "عدد الكلمات" : "Word count"}</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.word_count}
+                  onChange={(e) => setForm({ ...form, word_count: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>{t("papers.file")}</Label>
+              <p className="text-xs text-muted-foreground">
+                {isAr
+                  ? "⚠️ تأكّد من رفع نسخة معمّاة من البحث: احذف اسمك وبيانات التواصل من صفحة الغلاف ومن خصائص الملف (Document Properties)، حفاظاً على عدالة التحكيم الأعمى."
+                  : "⚠️ Please upload a blinded copy: remove your name and contact info from the cover page and the file metadata to preserve double-blind review."}
+              </p>
               <div className="flex items-center gap-3">
                 <Input
                   type="file"
