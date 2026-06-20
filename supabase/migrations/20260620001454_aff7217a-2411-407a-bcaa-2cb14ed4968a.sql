@@ -1,0 +1,1 @@
+ALTER TABLE public.review_reports ADD COLUMN report_file_url text;
