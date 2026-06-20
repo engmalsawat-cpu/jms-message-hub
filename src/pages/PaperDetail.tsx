@@ -117,14 +117,55 @@ export default function PaperDetail() {
   const { data: reviewReports = [] } = useQuery({
     queryKey: ["paper-review-reports", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: reports, error } = await supabase
         .from("review_reports")
-        .select("*, profiles:reviewer_id(full_name), criteria_scores(*, evaluation_criteria:criteria_id(name_ar, name_en, max_score))")
+        .select("*")
         .eq("paper_id", id!)
         .eq("is_submitted", true)
         .order("submitted_at", { ascending: false });
       if (error) throw error;
-      return data;
+
+      if (!reports || reports.length === 0) return [];
+
+      const reviewerIds = [...new Set(reports.map((report) => report.reviewer_id).filter(Boolean))];
+      const reportIds = reports.map((report) => report.id);
+
+      const [{ data: profiles, error: profilesError }, { data: scores, error: scoresError }] = await Promise.all([
+        reviewerIds.length > 0
+          ? supabase.from("profiles").select("id, full_name").in("id", reviewerIds)
+          : Promise.resolve({ data: [], error: null }),
+        supabase.from("criteria_scores").select("*").in("review_report_id", reportIds),
+      ]);
+
+      if (profilesError) throw profilesError;
+      if (scoresError) throw scoresError;
+
+      const criteriaIds = [...new Set((scores || []).map((score) => score.criteria_id).filter(Boolean))];
+      const { data: criteria, error: criteriaError } = criteriaIds.length > 0
+        ? await supabase
+            .from("evaluation_criteria")
+            .select("id, name_ar, name_en, max_score, sort_order")
+            .in("id", criteriaIds)
+        : { data: [], error: null };
+
+      if (criteriaError) throw criteriaError;
+
+      const profilesById = new Map((profiles || []).map((profile) => [profile.id, profile]));
+      const criteriaById = new Map((criteria || []).map((item) => [item.id, item]));
+      const scoresByReport = (scores || []).reduce<Record<string, any[]>>((acc, score) => {
+        const reportScores = acc[score.review_report_id] || [];
+        reportScores.push({ ...score, evaluation_criteria: criteriaById.get(score.criteria_id) || null });
+        acc[score.review_report_id] = reportScores;
+        return acc;
+      }, {});
+
+      return reports.map((report) => ({
+        ...report,
+        profiles: profilesById.get(report.reviewer_id) || null,
+        criteria_scores: (scoresByReport[report.id] || []).sort((a, b) =>
+          (a.evaluation_criteria?.sort_order || 0) - (b.evaluation_criteria?.sort_order || 0)
+        ),
+      }));
     },
     enabled: !!id && isEditor,
   });
@@ -582,11 +623,6 @@ export default function PaperDetail() {
         <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
       )}
 
-      {/* Committee Voting Panel — shown to committee members and editors */}
-      {paper && (
-        <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
-      )}
-
       {/* Review Reports (Editor View) */}
       {isEditor && reviewReports.length > 0 && (
         <Card>
@@ -685,6 +721,11 @@ export default function PaperDetail() {
             })}
           </CardContent>
         </Card>
+      )}
+
+      {/* Committee Voting Panel — shown to committee members and editors */}
+      {paper && (
+        <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
       )}
 
       {/* Assigned Roles (Editor View) */}

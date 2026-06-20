@@ -7,7 +7,7 @@
 > what's left. Anything we agree to do gets added here. When a task is finished,
 > mark it `[x]`.
 >
-> _Last updated: 2026-06-19 (M4 done — all four milestones built; ready for heavy testing)_
+> _Last updated: 2026-06-20 (Fixed submitted review report visibility on paper detail)_
 
 ---
 
@@ -79,6 +79,7 @@
 - [x] Set up Plan → Build → QA workflow: 3 subagents (`planner`/Opus, `builder`/Sonnet, `qa`/Opus) + automatic pre-commit QA gate + `CLAUDE.md` — _2026-06-19_
 - [x] Planner produces two plans: a simple owner plan + a detailed execution plan — _2026-06-19_
 - [x] Improve paper file visibility: show a green "file available" badge, show "no file" when missing, and confirm the submitted test paper's PDF exists in storage — _2026-06-19_
+- [x] Fix submitted review report visibility on the paper detail page for Managing Editor — _2026-06-20_
 
 ---
 
@@ -96,3 +97,4 @@
 - **2026-06-19** — M3 Feature 1 (Committee voting): assign a paper to a committee, members vote with justification (4 options: approve / approve-with-revisions / reject / abstain), live tally per the committee rule (majority/unanimous + min votes; abstain counts against passing), editor records the decision (writes a stage-history entry). Member tally uses a SECURITY DEFINER RPC so RLS doesn't hide colleagues' counts. QA: PASS (first pass FAIL caught an RLS tally bug — fixed; unit tests added for tally). **New migration `20260619230000_committee_voting.sql` must be applied to live Supabase** (vote UPDATE policy + tally RPC). _Applied by Lovable._
 - **2026-06-19** — M4 (Fit your process): added a "Load standard stages" button (`src/lib/defaultStages.ts` template + unit test) so an empty center seeds a default review→committee→decision→publication flow in one click (owner edits after). Confirmed all 7 role labels + access are correct; per owner decision, managing_editor does NOT manage centers/committees/stages (kept to admin/editor_in_chief/hq_admin, matching the DB — no role change). QA: PASS. No DB migration. **All four milestones now built.**
 - **2026-06-19** — Paper file UX check: paper details now always show file status (green badge when present, "لا يوجد ملف" when absent). Confirmed test paper "محمد" has an uploaded PDF in storage: `4c9326e1-159a-4689-a027-07805070344a/1781911844782.pdf` (~7.8MB).
+- **2026-06-20** — Fixed the submitted review report section: the paper detail page now loads reviewer names and criteria scores without relying on missing DB foreign-key embedding, so "تقارير التحكيم المقدمة" appears between "طلبات التحكيم" and "سجل المراحل والتتبع".
