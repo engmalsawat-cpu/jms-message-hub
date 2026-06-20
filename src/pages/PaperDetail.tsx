@@ -22,6 +22,7 @@ import {
 import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 import { CommitteeVotingPanel } from "@/components/CommitteeVotingPanel";
 import { AuthorDecisionPanel } from "@/components/AuthorDecisionPanel";
+import { WorkflowStepper } from "@/components/WorkflowStepper";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -233,7 +234,7 @@ export default function PaperDetail() {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!paper && isEditor,
+      enabled: !!paper?.journal_id,
   });
 
   const { data: journalCommittees = [] } = useQuery({
@@ -394,6 +395,13 @@ export default function PaperDetail() {
         <h1 className="text-2xl font-bold flex-1">{isAr ? paper.title_ar : paper.title_en}</h1>
         <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
       </div>
+
+      {/* Workflow Stepper */}
+      <WorkflowStepper
+        stages={journalStages}
+        currentStageId={paper.current_stage_id}
+        status={paper.status}
+      />
 
       {/* Editor Actions */}
       {isEditor && (
