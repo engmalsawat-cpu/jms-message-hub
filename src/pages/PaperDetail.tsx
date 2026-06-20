@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   ArrowRight, ArrowLeft, Clock, CheckCircle, FileText,
-  UserPlus, Send, MessageSquare, AlertTriangle, Star, Eye, ClipboardCheck, Vote
+  UserPlus, Send, MessageSquare, AlertTriangle, Star, Eye, ClipboardCheck, Vote, Download
 } from "lucide-react";
 import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 import { CommitteeVotingPanel } from "@/components/CommitteeVotingPanel";
@@ -653,6 +653,32 @@ export default function PaperDetail() {
                     <p className="text-xs text-muted-foreground">
                       {isAr ? "تاريخ التقديم:" : "Submitted:"} {new Date(report.submitted_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
                     </p>
+                  )}
+                  {report.report_file_url && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        const { data, error } = await supabase.storage
+                          .from("papers")
+                          .download(report.report_file_url);
+                        if (error) {
+                          toast.error(isAr ? "تعذر التحميل" : "Download failed");
+                          return;
+                        }
+                        const url = URL.createObjectURL(data);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = report.report_file_url.split("/").pop() || "report";
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {isAr ? "تحميل ملف تقرير المحكم" : "Download Reviewer's Report File"}
+                    </Button>
                   )}
                 </div>
               );
