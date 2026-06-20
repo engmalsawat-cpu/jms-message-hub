@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 import { CommitteeVotingPanel } from "@/components/CommitteeVotingPanel";
+import { AuthorDecisionPanel } from "@/components/AuthorDecisionPanel";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -726,6 +727,15 @@ export default function PaperDetail() {
       {/* Committee Voting Panel — shown to committee members and editors */}
       {paper && (
         <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
+      )}
+
+      {/* Author Decision — editors compose & send; author views received decisions */}
+      {paper && (
+        <AuthorDecisionPanel
+          paperId={paper.id}
+          paperTitle={isAr ? paper.title_ar : paper.title_en}
+          authorId={paper.submitted_by}
+        />
       )}
 
       {/* Assigned Roles (Editor View) */}
