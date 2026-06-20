@@ -220,7 +220,7 @@ export default function ReviewForm() {
               }}
             >
               <FileText className="h-4 w-4" />
-              {isAr ? "تحميل ملف البحث" : "Download Paper File"}
+              {isAr ? "تحميل تقرير المحكم" : "Download Reviewer's Report"}
             </Button>
           )}
         </CardContent>
