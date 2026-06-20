@@ -448,7 +448,7 @@ export default function PaperDetail() {
 
           <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 w-full justify-start">
                 <UserPlus className="h-4 w-4" />
                 {isAr ? "تعيين منسق للبحث" : "Assign Paper Role"}
               </Button>
@@ -486,7 +486,7 @@ export default function PaperDetail() {
 
           <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 w-full justify-start">
                 <MessageSquare className="h-4 w-4" />
                 {isAr ? "مراسلة الباحث" : "Message Author"}
               </Button>
@@ -506,7 +506,7 @@ export default function PaperDetail() {
 
           <Dialog open={committeeDialogOpen} onOpenChange={setCommitteeDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 w-full justify-start">
                 <Vote className="h-4 w-4" />
                 {isAr ? "إرسال إلى لجنة" : "Send to Committee"}
               </Button>
@@ -545,11 +545,91 @@ export default function PaperDetail() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
-      )}
+    </>
+  );
 
-      {/* Author revision response */}
-      {isAuthor && paper.status === "revision_required" && (
+  const sidebar = (
+    <aside className="space-y-4 lg:sticky lg:top-4 self-start">
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base">{isAr ? "معلومات البحث" : "Paper Info"}</CardTitle></CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div>
+            <p className="text-muted-foreground text-xs mb-1">{t("papers.titleAr")}</p>
+            <p className="font-medium" dir="rtl">{paper.title_ar}</p>
+          </div>
+          <Separator />
+          <div>
+            <p className="text-muted-foreground text-xs mb-1">{t("papers.titleEn")}</p>
+            <p className="font-medium" dir="ltr">{paper.title_en}</p>
+          </div>
+          <Separator />
+          <div className="flex justify-between gap-2">
+            <span className="text-muted-foreground">{t("journals.title")}</span>
+            <span className="text-right">{isAr ? paper.journals?.title_ar : paper.journals?.title_en}</span>
+          </div>
+          <Separator />
+          <div>
+            <p className="text-muted-foreground mb-1">{isAr ? "المرحلة الحالية" : "Current Stage"}</p>
+            <p className="font-medium">{currentStageLabel}</p>
+          </div>
+          <Separator />
+          <div className="flex justify-between gap-2">
+            <span className="text-muted-foreground">{isAr ? "تاريخ التقديم" : "Submitted"}</span>
+            <span>{paper.submitted_at ? new Date(paper.submitted_at).toLocaleDateString(isAr ? "ar-SA" : "en-US") : "-"}</span>
+          </div>
+          {paper.keywords && paper.keywords.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-muted-foreground mb-1">{t("papers.keywords")}</p>
+                <div className="flex gap-1 flex-wrap">
+                  {paper.keywords.map((k: string) => (<Badge key={k} variant="secondary">{k}</Badge>))}
+                </div>
+              </div>
+            </>
+          )}
+          <Separator />
+          <div>
+            <p className="text-muted-foreground mb-2">{t("papers.file")}</p>
+            {paper.file_url ? (
+              <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => downloadPaperFile(paper.file_url!)}>
+                <FileText className="h-4 w-4" />{isAr ? "تحميل الملف" : "Download File"}
+              </Button>
+            ) : (
+              <span className="text-muted-foreground">{isAr ? "لا يوجد ملف" : "No file"}</span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {isEditor && (
+        <Card>
+          <CardHeader className="pb-3"><CardTitle className="text-base">{isAr ? "إجراءات سريعة" : "Quick Actions"}</CardTitle></CardHeader>
+          <CardContent className="space-y-2">{editorDialogs}</CardContent>
+        </Card>
+      )}
+    </aside>
+  );
+
+  return (
+    <div className="max-w-7xl mx-auto space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <Link to={isEditor ? "/papers" : "/my-papers"}>
+          <Button variant="ghost" size="icon"><BackArrow className="h-4 w-4" /></Button>
+        </Link>
+        <h1 className="text-2xl font-bold flex-1">{isAr ? paper.title_ar : paper.title_en}</h1>
+        <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
+      </div>
+
+      <WorkflowStepper stages={journalStages} currentStageId={paper.current_stage_id} status={paper.status} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main column */}
+        <div className="lg:col-span-2 space-y-4">
+          <PaperStatusSummary paperId={paper.id} paperStatus={paper.status} isEditor={isEditor} />
+
+          {isAuthor && paper.status === "revision_required" && (
         <Card className="border-orange-300 bg-orange-50 dark:bg-orange-950/20">
           <CardContent className="flex items-start gap-3 pt-4">
             <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
@@ -563,96 +643,47 @@ export default function PaperDetail() {
             </div>
           </CardContent>
         </Card>
-      )}
+          )}
 
-      {/* Paper Info Cards */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader><CardTitle>{t("papers.titleAr")}</CardTitle></CardHeader>
-          <CardContent>
-            <p className="font-semibold mb-2" dir="rtl">{paper.title_ar}</p>
-            <p className="text-sm text-muted-foreground" dir="rtl">{paper.abstract_ar}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>{t("papers.titleEn")}</CardTitle></CardHeader>
-          <CardContent>
-            <p className="font-semibold mb-2" dir="ltr">{paper.title_en}</p>
-            <p className="text-sm text-muted-foreground" dir="ltr">{paper.abstract_en}</p>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Abstracts */}
+          <Accordion type="multiple" className="space-y-2">
+            <AccordionItem value="abstracts" className="border rounded-lg bg-card px-4">
+              <AccordionTrigger className="text-base font-semibold">{isAr ? "ملخصات البحث" : "Abstracts"}</AccordionTrigger>
+              <AccordionContent>
+                <div className="grid md:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">{t("papers.titleAr")}</p>
+                    <p className="text-sm" dir="rtl">{paper.abstract_ar}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">{t("papers.titleEn")}</p>
+                    <p className="text-sm" dir="ltr">{paper.abstract_en}</p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-      {/* Paper Meta */}
-      <Card>
-        <CardHeader><CardTitle>{isAr ? "معلومات البحث" : "Paper Info"}</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{t("journals.title")}</span>
-            <span>{isAr ? paper.journals?.title_ar : paper.journals?.title_en}</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{t("papers.keywords")}</span>
-            <div className="flex gap-1 flex-wrap justify-end">
-              {paper.keywords?.map((k: string) => (
-                <Badge key={k} variant="secondary">{k}</Badge>
-              ))}
-            </div>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{isAr ? "المرحلة الحالية" : "Current Stage"}</span>
-            <span>{currentStageLabel}</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{isAr ? "تاريخ التقديم" : "Submitted At"}</span>
-            <span>{paper.submitted_at ? new Date(paper.submitted_at).toLocaleDateString(isAr ? "ar-SA" : "en-US") : "-"}</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between items-center gap-3">
-            <span className="text-muted-foreground">{t("papers.file")}</span>
-            {paper.file_url ? (
-              <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  {isAr ? "يوجد ملف" : "File available"}
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => downloadPaperFile(paper.file_url!)}
-                >
-                  <FileText className="h-4 w-4" />
-                  {isAr ? "تحميل الملف" : "Download File"}
-                </Button>
-              </div>
-            ) : (
-              <span className="text-sm font-medium text-muted-foreground">
-                {isAr ? "لا يوجد ملف" : "No file"}
-              </span>
+            {isEditor && (
+              <AccordionItem value="review-requests" className="border rounded-lg bg-card px-4">
+                <AccordionTrigger className="text-base font-semibold">{isAr ? "طلبات التحكيم" : "Review Requests"}</AccordionTrigger>
+                <AccordionContent>
+                  <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
+                </AccordionContent>
+              </AccordionItem>
             )}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Review Requests (Editor View) */}
-      {isEditor && (
-        <ReviewRequestsPanel paperId={paper.id} journalId={paper.journal_id} />
-      )}
-
-      {/* Review Reports (Editor View) */}
-      {isEditor && reviewReports.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5" />
-              {isAr ? "تقارير التحكيم المقدمة" : "Submitted Review Reports"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {reviewReports.map((report: any, idx: number) => {
+            {isEditor && reviewReports.length > 0 && (
+              <AccordionItem value="review-reports" className="border rounded-lg bg-card px-4">
+                <AccordionTrigger className="text-base font-semibold">
+                  <span className="flex items-center gap-2">
+                    <ClipboardCheck className="h-4 w-4" />
+                    {isAr ? "تقارير التحكيم المقدمة" : "Submitted Review Reports"}
+                    <Badge variant="secondary">{reviewReports.length}</Badge>
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-6 pt-2">
+                    {reviewReports.map((report: any, idx: number) => {
               const recColors: Record<string, string> = {
                 accept: "bg-green-100 text-green-800",
                 minor_revision: "bg-yellow-100 text-yellow-800",
@@ -737,50 +768,55 @@ export default function PaperDetail() {
                   )}
                 </div>
               );
-            })}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Committee Voting Panel — shown to committee members and editors */}
-      {paper && (
-        <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
-      )}
-
-      {/* Author Decision — editors compose & send; author views received decisions */}
-      {paper && (
-        <AuthorDecisionPanel
-          paperId={paper.id}
-          paperTitle={isAr ? paper.title_ar : paper.title_en}
-          authorId={paper.submitted_by}
-          journalId={paper.journal_id}
-        />
-      )}
-
-      {/* Assigned Roles (Editor View) */}
-      {isEditor && paperRoles && paperRoles.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>{isAr ? "الأدوار المعينة" : "Assigned Roles"}</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {paperRoles.map((pr: any) => (
-                <div key={pr.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                  <div>
-                    <span className="font-medium">{pr.profiles?.full_name || pr.profiles?.email}</span>
+                    })}
                   </div>
-                  <Badge variant="secondary">{pr.role}</Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
-      {/* Messages Thread */}
-      {threads && threads.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>{isAr ? "الرسائل" : "Messages"}</CardTitle></CardHeader>
-          <CardContent>
+            <AccordionItem value="committee" className="border rounded-lg bg-card px-4">
+              <AccordionTrigger className="text-base font-semibold">
+                <span className="flex items-center gap-2"><Vote className="h-4 w-4" />{isAr ? "تصويت اللجنة" : "Committee Voting"}</span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <CommitteeVotingPanel paperId={paper.id} journalId={paper.journal_id} />
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="author-decision" className="border rounded-lg bg-card px-4">
+              <AccordionTrigger className="text-base font-semibold">
+                <span className="flex items-center gap-2"><Send className="h-4 w-4" />{isAr ? "قرار إلى الباحث" : "Decision to Author"}</span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <AuthorDecisionPanel
+                  paperId={paper.id}
+                  paperTitle={isAr ? paper.title_ar : paper.title_en}
+                  authorId={paper.submitted_by}
+                  journalId={paper.journal_id}
+                />
+              </AccordionContent>
+            </AccordionItem>
+
+            {isEditor && paperRoles && paperRoles.length > 0 && (
+              <AccordionItem value="roles" className="border rounded-lg bg-card px-4">
+                <AccordionTrigger className="text-base font-semibold">{isAr ? "الأدوار المعينة" : "Assigned Roles"} <Badge variant="secondary" className="ml-2">{paperRoles.length}</Badge></AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-2 pt-2">
+                    {paperRoles.map((pr: any) => (
+                      <div key={pr.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <span className="font-medium">{pr.profiles?.full_name || pr.profiles?.email}</span>
+                        <Badge variant="secondary">{pr.role}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {threads && threads.length > 0 && (
+              <AccordionItem value="messages" className="border rounded-lg bg-card px-4">
+                <AccordionTrigger className="text-base font-semibold">{isAr ? "الرسائل" : "Messages"}</AccordionTrigger>
+                <AccordionContent>
             <div className="space-y-4">
               {threads.map((thread: any) => (
                 <div key={thread.id} className="space-y-3">
@@ -799,19 +835,15 @@ export default function PaperDetail() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
-      {/* Stage History - Always visible */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            {isAr ? "سجل المراحل والتتبع" : "Stage History & Tracking"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+            <AccordionItem value="history" className="border rounded-lg bg-card px-4">
+              <AccordionTrigger className="text-base font-semibold">
+                <span className="flex items-center gap-2"><Clock className="h-4 w-4" />{isAr ? "سجل المراحل والتتبع" : "Stage History & Tracking"}</span>
+              </AccordionTrigger>
+              <AccordionContent>
           {(!history || history.length === 0) ? (
             <p className="text-muted-foreground text-center py-4">{isAr ? "لا يوجد سجل مراحل بعد" : "No stage history yet"}</p>
           ) : (
@@ -847,8 +879,14 @@ export default function PaperDetail() {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        {/* Sidebar */}
+        {sidebar}
+      </div>
     </div>
   );
 }
