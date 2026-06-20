@@ -72,6 +72,11 @@ export default function PaperDetail() {
   const BackArrow = isAr ? ArrowRight : ArrowLeft;
   const queryClient = useQueryClient();
   const isEditor = hasAnyRole(["admin", "editor_in_chief", "managing_editor", "hq_admin"]);
+  // Committee-only view: a user who is on a committee for this paper but is
+  // neither editor nor the author. They should only see what's needed to vote:
+  // the paper file, reviewer reports, and the voting panel.
+  const isCommitteeOnly =
+    !isEditor && hasAnyRole(["committee_member"]);
 
   const downloadPaperFile = async (filePath: string) => {
     const { data, error } = await supabase.storage.from("papers").download(filePath);
@@ -195,7 +200,7 @@ export default function PaperDetail() {
         ),
       }));
     },
-    enabled: !!id && isEditor,
+    enabled: !!id && (isEditor || isCommitteeOnly),
   });
 
   const { data: paperRoles } = useQuery({
@@ -622,7 +627,9 @@ export default function PaperDetail() {
         <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
       </div>
 
-      <WorkflowStepper stages={journalStages} currentStageId={paper.current_stage_id} status={paper.status} />
+      {!isCommitteeOnly && (
+        <WorkflowStepper stages={journalStages} currentStageId={paper.current_stage_id} status={paper.status} />
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sidebar (first in DOM → right side in RTL, left in LTR) */}
@@ -630,7 +637,9 @@ export default function PaperDetail() {
 
         {/* Main column */}
         <div className="lg:col-span-2 space-y-4 lg:order-2">
-          <PaperStatusSummary paperId={paper.id} paperStatus={paper.status} isEditor={isEditor} />
+          {!isCommitteeOnly && (
+            <PaperStatusSummary paperId={paper.id} paperStatus={paper.status} isEditor={isEditor} />
+          )}
 
           {isAuthor && paper.status === "revision_required" && (
         <Card className="border-orange-300 bg-orange-50 dark:bg-orange-950/20">
@@ -675,7 +684,7 @@ export default function PaperDetail() {
               </AccordionItem>
             )}
 
-            {isEditor && reviewReports.length > 0 && (
+            {(isEditor || isCommitteeOnly) && reviewReports.length > 0 && (
               <AccordionItem value="review-reports" className="border rounded-lg bg-card px-4">
                 <AccordionTrigger className="text-base font-semibold">
                   <span className="flex items-center gap-2">
@@ -786,6 +795,7 @@ export default function PaperDetail() {
               </AccordionContent>
             </AccordionItem>
 
+            {!isCommitteeOnly && (
             <AccordionItem value="author-decision" className="border rounded-lg bg-card px-4">
               <AccordionTrigger className="text-base font-semibold">
                 <span className="flex items-center gap-2"><Send className="h-4 w-4" />{isAr ? "قرار إلى الباحث" : "Decision to Author"}</span>
@@ -799,6 +809,7 @@ export default function PaperDetail() {
                 />
               </AccordionContent>
             </AccordionItem>
+            )}
 
             {isEditor && paperRoles && paperRoles.length > 0 && (
               <AccordionItem value="roles" className="border rounded-lg bg-card px-4">
@@ -842,6 +853,7 @@ export default function PaperDetail() {
               </AccordionItem>
             )}
 
+            {!isCommitteeOnly && (
             <AccordionItem value="history" className="border rounded-lg bg-card px-4">
               <AccordionTrigger className="text-base font-semibold">
                 <span className="flex items-center gap-2"><Clock className="h-4 w-4" />{isAr ? "سجل المراحل والتتبع" : "Stage History & Tracking"}</span>
@@ -884,6 +896,7 @@ export default function PaperDetail() {
           )}
               </AccordionContent>
             </AccordionItem>
+            )}
           </Accordion>
         </div>
 
