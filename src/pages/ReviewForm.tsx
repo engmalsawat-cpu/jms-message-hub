@@ -34,7 +34,7 @@ export default function ReviewForm() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("review_requests")
-        .select("*, papers(title_ar, title_en, abstract_ar, abstract_en, journal_id, file_url, journals(title_ar, title_en))")
+        .select("*, papers(title_ar, title_en, abstract_ar, abstract_en, journal_id, file_url, page_count, word_count, journals(title_ar, title_en))")
         .eq("id", requestId!)
         .single();
       if (error) throw error;
