@@ -133,7 +133,7 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
       };
       const { error: pErr } = await supabase
         .from("papers")
-        .update({ status: statusMap[decision as Decision] as any })
+        .update({ status: statusMap[decision as Decision] as any, updated_at: new Date().toISOString() })
         .eq("id", paperId);
       if (pErr) throw pErr;
 
@@ -163,6 +163,8 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
       queryClient.invalidateQueries({ queryKey: ["author-decisions", paperId] });
       queryClient.invalidateQueries({ queryKey: ["paper-history", paperId] });
       queryClient.invalidateQueries({ queryKey: ["paper", paperId] });
+      queryClient.invalidateQueries({ queryKey: ["all-papers"] });
+      queryClient.invalidateQueries({ queryKey: ["my-papers"] });
       toast.success(isAr ? "تم إرسال القرار والملاحظات للباحث" : "Decision and comments sent to author");
       setDecision("");
       setMessage("");
