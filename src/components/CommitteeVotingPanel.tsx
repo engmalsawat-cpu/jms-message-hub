@@ -403,29 +403,41 @@ export function CommitteeVotingPanel({ paperId, journalId: _journalId }: Props) 
                         )
                       )}
                     </div>
-                    {/* Justification */}
-                    <div className="space-y-1">
-                      <Label className="text-sm">
-                        {t("committees.justification")}
-                      </Label>
-                      <Textarea
-                        value={justification}
-                        onChange={(e) => setJustification(e.target.value)}
-                        rows={3}
-                        placeholder={t("committees.justificationPlaceholder")}
-                      />
-                    </div>
+                    {/* Justification — shown only for votes that require it */}
+                    {myVote === "approve_with_revisions" || myVote === "reject" ? (
+                      <div className="space-y-1">
+                        <Label className="text-sm">
+                          {myVote === "reject"
+                            ? t("committees.justificationRequired")
+                            : t("committees.justificationLabel")}
+                        </Label>
+                        <Textarea
+                          value={justification}
+                          onChange={(e) => setJustification(e.target.value)}
+                          rows={3}
+                          placeholder={
+                            myVote === "approve_with_revisions"
+                              ? t("committees.revisionsPlaceholder")
+                              : t("committees.rejectionPlaceholder")
+                          }
+                        />
+                      </div>
+                    ) : null}
                     <Button
                       disabled={
                         !myVote ||
-                        !justification.trim() ||
+                        ((myVote === "approve_with_revisions" || myVote === "reject") &&
+                          !justification.trim()) ||
                         submitVote.isPending
                       }
                       onClick={() =>
                         submitVote.mutate({
                           committeePaperId: assignment.id,
                           vote: myVote as VoteValue,
-                          justification: justification.trim(),
+                          justification:
+                            myVote === "approve" || myVote === "abstain"
+                              ? ""
+                              : justification.trim(),
                         })
                       }
                       className="w-full"
