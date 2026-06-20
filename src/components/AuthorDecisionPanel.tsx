@@ -20,6 +20,7 @@ interface Props {
   paperId: string;
   paperTitle: string;
   authorId: string | null;
+  journalId: string;
 }
 
 const decisionLabels = (isAr: boolean): Record<Decision, string> =>
@@ -34,7 +35,7 @@ const decisionColors: Record<Decision, string> = {
   reject: "bg-red-100 text-red-800",
 };
 
-export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
+export function AuthorDecisionPanel({ paperId, paperTitle, authorId, journalId }: Props) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const { user, hasAnyRole } = useAuth();
@@ -44,6 +45,20 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
   const [decision, setDecision] = useState<Decision | "">("");
   const [message, setMessage] = useState("");
   const [includeMap, setIncludeMap] = useState<Record<string, boolean>>({});
+
+  const { data: journalStages = [] } = useQuery({
+    queryKey: ["author-decision-stages", journalId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workflow_stages")
+        .select("id, name_ar, name_en, stage_order, stage_type")
+        .eq("journal_id", journalId)
+        .order("stage_order", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!journalId && isEditor,
+  });
 
   // Submitted review reports (for building the draft)
   const { data: reports = [] } = useQuery({
@@ -131,16 +146,29 @@ export function AuthorDecisionPanel({ paperId, paperTitle, authorId }: Props) {
         major_revision: "revision_required",
         reject: "rejected",
       };
+      const nextStage =
+        decision === "accept"
+          ? journalStages.find((stage: any) => stage.stage_type === "publication")
+          : journalStages.find((stage: any) =>
+              [stage.name_ar, stage.name_en].some((name) =>
+                (name || "").toLowerCase().includes("final") || (name || "").includes("نهائي")
+              )
+            ) || journalStages[journalStages.length - 1];
+      const paperUpdate: any = {
+        status: statusMap[decision as Decision],
+        updated_at: new Date().toISOString(),
+      };
+      if (nextStage?.id) paperUpdate.current_stage_id = nextStage.id;
       const { error: pErr } = await supabase
         .from("papers")
-        .update({ status: statusMap[decision as Decision] as any, updated_at: new Date().toISOString() })
+        .update(paperUpdate)
         .eq("id", paperId);
       if (pErr) throw pErr;
 
       // History entry
       await supabase.from("paper_stage_history").insert({
         paper_id: paperId,
-        stage_id: null,
+        stage_id: nextStage?.id || null,
         action: "author_decision_sent",
         notes: `${decisionLabels(isAr)[decision as Decision]} — ${message.trim().slice(0, 200)}${message.length > 200 ? "..." : ""}`,
         performed_by: user!.id,
