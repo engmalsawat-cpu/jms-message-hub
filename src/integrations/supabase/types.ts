@@ -53,6 +53,44 @@ export type Database = {
         }
         Relationships: []
       }
+      author_decisions: {
+        Row: {
+          created_at: string
+          decision: Database["public"]["Enums"]["author_decision_type"]
+          id: string
+          paper_id: string
+          prepared_by: string
+          sent_at: string
+          unified_message: string
+        }
+        Insert: {
+          created_at?: string
+          decision: Database["public"]["Enums"]["author_decision_type"]
+          id?: string
+          paper_id: string
+          prepared_by: string
+          sent_at?: string
+          unified_message: string
+        }
+        Update: {
+          created_at?: string
+          decision?: Database["public"]["Enums"]["author_decision_type"]
+          id?: string
+          paper_id?: string
+          prepared_by?: string
+          sent_at?: string
+          unified_message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "author_decisions_paper_id_fkey"
+            columns: ["paper_id"]
+            isOneToOne: false
+            referencedRelation: "papers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blacklist: {
         Row: {
           added_by: string | null
@@ -1214,6 +1252,11 @@ export type Database = {
         | "researcher"
         | "committee_member"
         | "hq_admin"
+      author_decision_type:
+        | "accept"
+        | "minor_revision"
+        | "major_revision"
+        | "reject"
       journal_status: "active" | "inactive" | "archived"
       paper_status:
         | "draft"
@@ -1372,6 +1415,12 @@ export const Constants = {
         "researcher",
         "committee_member",
         "hq_admin",
+      ],
+      author_decision_type: [
+        "accept",
+        "minor_revision",
+        "major_revision",
+        "reject",
       ],
       journal_status: ["active", "inactive", "archived"],
       paper_status: [
