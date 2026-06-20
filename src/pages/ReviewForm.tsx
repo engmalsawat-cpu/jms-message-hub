@@ -12,7 +12,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ArrowRight, ArrowLeft, Save, Send, Loader2, FileText } from "lucide-react";
+import { ArrowRight, ArrowLeft, Save, Send, Loader2, FileText, Upload, Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function ReviewForm() {
   const { t, i18n } = useTranslation();
@@ -27,6 +28,8 @@ export default function ReviewForm() {
   const [generalComments, setGeneralComments] = useState("");
   const [confidentialComments, setConfidentialComments] = useState("");
   const [scores, setScores] = useState<Record<string, { score: number; comment: string }>>({});
+  const [reportFileUrl, setReportFileUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   // Fetch review request with paper info
   const { data: request } = useQuery({
@@ -81,6 +84,7 @@ export default function ReviewForm() {
       setRecommendation(existingReport.recommendation || "");
       setGeneralComments(existingReport.general_comments || "");
       setConfidentialComments(existingReport.confidential_comments || "");
+      setReportFileUrl((existingReport as any).report_file_url || null);
       const s: Record<string, { score: number; comment: string }> = {};
       (existingReport.criteria_scores || []).forEach((cs: any) => {
         s[cs.criteria_id] = { score: cs.score, comment: cs.comment || "" };
@@ -112,6 +116,7 @@ export default function ReviewForm() {
             recommendation: recommendation || null,
             general_comments: generalComments || null,
             confidential_comments: confidentialComments || null,
+            report_file_url: reportFileUrl,
             is_submitted: submit,
             submitted_at: submit ? new Date().toISOString() : null,
           } as any)
@@ -131,6 +136,7 @@ export default function ReviewForm() {
             recommendation: recommendation || null,
             general_comments: generalComments || null,
             confidential_comments: confidentialComments || null,
+            report_file_url: reportFileUrl,
             is_submitted: submit,
             submitted_at: submit ? new Date().toISOString() : null,
           } as any)
@@ -220,7 +226,7 @@ export default function ReviewForm() {
               }}
             >
               <FileText className="h-4 w-4" />
-              {isAr ? "تحميل تقرير المحكم" : "Download Reviewer's Report"}
+              {isAr ? "تحميل ملف البحث" : "Download Paper File"}
             </Button>
           )}
         </CardContent>
@@ -290,6 +296,73 @@ export default function ReviewForm() {
           <div className="space-y-2">
             <Label>{isAr ? "ملاحظات سرية (للمحرر فقط)" : "Confidential Comments (editor only)"}</Label>
             <Textarea value={confidentialComments} onChange={(e) => setConfidentialComments(e.target.value)} rows={3} />
+          </div>
+          <Separator />
+          <div className="space-y-2">
+            <Label>{isAr ? "ملف تقرير المحكم (اختياري)" : "Reviewer's Report File (optional)"}</Label>
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "يمكنك رفع تقرير مفصل بصيغة PDF أو Word."
+                : "Upload a detailed report (PDF or Word)."}
+            </p>
+            <div className="flex items-center gap-3">
+              <Input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                disabled={uploading}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !user) return;
+                  setUploading(true);
+                  const path = `${user.id}/reports/${requestId}-${Date.now()}-${file.name}`;
+                  const { error } = await supabase.storage.from("papers").upload(path, file, { upsert: true });
+                  setUploading(false);
+                  if (error) {
+                    toast.error(error.message);
+                    return;
+                  }
+                  setReportFileUrl(path);
+                  toast.success(isAr ? "تم رفع الملف" : "File uploaded");
+                }}
+              />
+              {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+            </div>
+            {reportFileUrl && (
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={async () => {
+                    const { data, error } = await supabase.storage.from("papers").download(reportFileUrl);
+                    if (error || !data) {
+                      toast.error(isAr ? "تعذر تحميل الملف" : "Could not download file");
+                      return;
+                    }
+                    const url = URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = reportFileUrl.split("/").pop() || "report";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  <Download className="h-4 w-4" />
+                  {isAr ? "تحميل الملف الحالي" : "Download current file"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setReportFileUrl(null)}
+                >
+                  {isAr ? "إزالة" : "Remove"}
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
