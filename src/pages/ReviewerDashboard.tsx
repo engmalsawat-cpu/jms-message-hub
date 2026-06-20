@@ -203,6 +203,31 @@ function PendingRequestCard({ request, isAr, onRespond, isPending }: any) {
 }
 
 function ActiveReviewCard({ request, isAr }: any) {
+  const downloadPaperFile = async () => {
+    const filePath = request.papers?.file_url;
+
+    if (!filePath) {
+      toast.error(isAr ? "لا يوجد ملف للتحميل" : "No file to download");
+      return;
+    }
+
+    const { data, error } = await supabase.storage.from("papers").download(filePath);
+
+    if (error || !data) {
+      toast.error(isAr ? "تعذر تحميل الملف" : "Could not download file");
+      return;
+    }
+
+    const url = URL.createObjectURL(data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filePath.split("/").pop() || "paper-file.pdf";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="border rounded-lg p-4 space-y-3">
       <div className="flex items-start justify-between">
@@ -225,25 +250,10 @@ function ActiveReviewCard({ request, isAr }: any) {
             variant="outline"
             size="sm"
             className="gap-2"
-            onClick={async () => {
-              const { data, error } = await supabase.storage
-                .from("papers")
-                .createSignedUrl(request.papers.file_url, 3600, { download: true });
-              if (error || !data?.signedUrl) {
-                toast.error(isAr ? "تعذر فتح الملف" : "Could not open file");
-                return;
-              }
-              const a = document.createElement("a");
-              a.href = data.signedUrl;
-              a.rel = "noopener";
-              a.target = "_blank";
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-            }}
+            onClick={downloadPaperFile}
           >
             <Eye className="h-4 w-4" />
-            {isAr ? "عرض الملف" : "View File"}
+            {isAr ? "تحميل الملف" : "Download File"}
           </Button>
         )}
         <Link to={`/review/${request.id}`}>
