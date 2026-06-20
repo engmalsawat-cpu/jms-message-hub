@@ -314,7 +314,8 @@ export default function ReviewForm() {
                   const file = e.target.files?.[0];
                   if (!file || !user) return;
                   setUploading(true);
-                  const path = `${user.id}/reports/${requestId}-${Date.now()}-${file.name}`;
+                  const safeName = file.name.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_.\-]/g, "");
+                  const path = `${user.id}/reports/${requestId}-${Date.now()}-${safeName}`;
                   const { error } = await supabase.storage.from("papers").upload(path, file, { upsert: true });
                   setUploading(false);
                   if (error) {
