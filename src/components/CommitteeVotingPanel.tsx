@@ -216,10 +216,15 @@ export function CommitteeVotingPanel({ paperId, journalId: _journalId }: Props) 
         };
 
         // Committee display name — show both scripts when available
-        const committeeDisplayName =
+        let committeeDisplayName =
           committee.name_ar && committee.name_en
             ? `${committee.name_ar} / ${committee.name_en}`
             : committee.name_en || committee.name_ar;
+
+        // Visual text edits as requested
+        if (committeeDisplayName === "لجنة التحكيم العلمي / Scientific Review Committee") {
+          committeeDisplayName = "لجنة التحكيم العلمي\u00a0";
+        }
 
         const decisionBg =
           assignment.decision === "approved"
