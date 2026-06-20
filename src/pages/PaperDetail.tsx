@@ -658,7 +658,11 @@ export default function PaperDetail() {
           )}
 
           {/* Abstracts */}
-          <Accordion type="multiple" className="space-y-2">
+          <Accordion
+            type="multiple"
+            defaultValue={isCommitteeOnly ? ["committee", "review-reports"] : []}
+            className="space-y-2"
+          >
             <AccordionItem value="abstracts" className="border rounded-lg bg-card px-4">
               <AccordionTrigger className="text-base font-semibold">{isAr ? "ملخصات البحث" : "Abstracts"}</AccordionTrigger>
               <AccordionContent>
