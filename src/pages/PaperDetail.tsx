@@ -23,6 +23,8 @@ import { ReviewRequestsPanel } from "@/components/ReviewRequestsPanel";
 import { CommitteeVotingPanel } from "@/components/CommitteeVotingPanel";
 import { AuthorDecisionPanel } from "@/components/AuthorDecisionPanel";
 import { WorkflowStepper } from "@/components/WorkflowStepper";
+import { PaperStatusSummary } from "@/components/PaperStatusSummary";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
