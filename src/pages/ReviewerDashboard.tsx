@@ -30,7 +30,7 @@ export default function ReviewerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("review_requests")
-        .select("*, papers(title_ar, title_en, abstract_ar, abstract_en, journal_id, file_url, journals(title_ar, title_en))")
+        .select("*, papers(title_ar, title_en, abstract_ar, abstract_en, journal_id, file_url, page_count, word_count, journals(title_ar, title_en))")
         .eq("reviewer_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -156,6 +156,14 @@ function PendingRequestCard({ request, isAr, onRespond, isPending }: any) {
               {isAr ? "الاستحقاق:" : "Due:"} {new Date(request.due_date).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
             </p>
           )}
+          <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+            {request.papers?.page_count != null && (
+              <span>{isAr ? "الصفحات:" : "Pages:"} {request.papers.page_count}</span>
+            )}
+            {request.papers?.word_count != null && (
+              <span>{isAr ? "الكلمات:" : "Words:"} {request.papers.word_count}</span>
+            )}
+          </div>
         </div>
         <Badge className="bg-yellow-100 text-yellow-800">{isAr ? "معلق" : "Pending"}</Badge>
       </div>
