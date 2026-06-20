@@ -765,6 +765,7 @@ export type Database = {
           recommendation:
             | Database["public"]["Enums"]["review_recommendation"]
             | null
+          report_file_url: string | null
           review_request_id: string
           reviewer_id: string
           submitted_at: string | null
@@ -780,6 +781,7 @@ export type Database = {
           recommendation?:
             | Database["public"]["Enums"]["review_recommendation"]
             | null
+          report_file_url?: string | null
           review_request_id: string
           reviewer_id: string
           submitted_at?: string | null
@@ -795,6 +797,7 @@ export type Database = {
           recommendation?:
             | Database["public"]["Enums"]["review_recommendation"]
             | null
+          report_file_url?: string | null
           review_request_id?: string
           reviewer_id?: string
           submitted_at?: string | null
