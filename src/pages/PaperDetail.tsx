@@ -387,28 +387,9 @@ export default function PaperDetail() {
     ? (isAr ? paper.workflow_stages.name_ar : paper.workflow_stages.name_en)
     : t(`papers.status.${paper.status}`);
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <Link to={isEditor ? "/papers" : "/my-papers"}>
-          <Button variant="ghost" size="icon"><BackArrow className="h-4 w-4" /></Button>
-        </Link>
-        <h1 className="text-2xl font-bold flex-1">{isAr ? paper.title_ar : paper.title_en}</h1>
-        <Badge className={statusColors[paper.status] || ""}>{t(`papers.status.${paper.status}`)}</Badge>
-      </div>
-
-      {/* Workflow Stepper */}
-      <WorkflowStepper
-        stages={journalStages}
-        currentStageId={paper.current_stage_id}
-        status={paper.status}
-      />
-
-      {/* Editor Actions */}
-      {isEditor && (
-        <div className="flex gap-2 flex-wrap">
-          <Dialog open={statusDialogOpen} onOpenChange={(o) => {
+  const editorDialogs = isEditor && (
+    <>
+      <Dialog open={statusDialogOpen} onOpenChange={(o) => {
             setStatusDialogOpen(o);
             if (o) {
               setNewStatus(paper.status);
@@ -416,7 +397,7 @@ export default function PaperDetail() {
             }
           }}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 w-full justify-start">
                 <Send className="h-4 w-4" />
                 {isAr ? "تغيير الحالة" : "Change Status"}
               </Button>
