@@ -7,7 +7,7 @@
 > what's left. Anything we agree to do gets added here. When a task is finished,
 > mark it `[x]`.
 >
-> _Last updated: 2026-06-20 (Fixed submitted review report visibility on paper detail)_
+> _Last updated: 2026-06-20 (Fixed empty current stage display after author decision)_
 
 ---
 
@@ -80,6 +80,7 @@
 - [x] Planner produces two plans: a simple owner plan + a detailed execution plan — _2026-06-19_
 - [x] Improve paper file visibility: show a green "file available" badge, show "no file" when missing, and confirm the submitted test paper's PDF exists in storage — _2026-06-19_
 - [x] Fix submitted review report visibility on the paper detail page for Managing Editor — _2026-06-20_
+- [x] Fix empty current stage display after sending the author decision — _2026-06-20_
 
 ---
 
@@ -99,3 +100,4 @@
 - **2026-06-19** — Paper file UX check: paper details now always show file status (green badge when present, "لا يوجد ملف" when absent). Confirmed test paper "محمد" has an uploaded PDF in storage: `4c9326e1-159a-4689-a027-07805070344a/1781911844782.pdf` (~7.8MB).
 - **2026-06-20** — Fixed the submitted review report section: the paper detail page now loads reviewer names and criteria scores without relying on missing DB foreign-key embedding, so "تقارير التحكيم المقدمة" appears between "طلبات التحكيم" and "سجل المراحل والتتبع".
 - **2026-06-20** — Fixed author-decision follow-through: paper status now updates with a fresh timestamp after sending the decision, paper lists refresh, and stage history loads without the broken profile relationship that made it appear empty.
+- **2026-06-20** — Fixed the empty "المرحلة الحالية" field: paper details now show the status label if no stage is set, author decisions set a real workflow stage, and the affected test paper was linked to "المراجعة النهائية".
