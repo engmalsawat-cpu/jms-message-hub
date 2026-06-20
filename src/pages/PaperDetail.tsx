@@ -117,13 +117,24 @@ export default function PaperDetail() {
   const { data: history } = useQuery({
     queryKey: ["paper-history", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: rows, error } = await supabase
         .from("paper_stage_history")
-        .select("*, workflow_stages(name_ar, name_en), profiles:performed_by(full_name)")
+        .select("*, workflow_stages(name_ar, name_en)")
         .eq("paper_id", id!)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return data;
+
+      const performerIds = [...new Set((rows || []).map((h) => h.performed_by).filter(Boolean))];
+      const { data: profiles, error: profilesError } = performerIds.length > 0
+        ? await supabase.from("profiles").select("id, full_name").in("id", performerIds)
+        : { data: [], error: null };
+      if (profilesError) throw profilesError;
+
+      const profilesById = new Map((profiles || []).map((profile) => [profile.id, profile]));
+      return (rows || []).map((row) => ({
+        ...row,
+        profiles: row.performed_by ? profilesById.get(row.performed_by) || null : null,
+      }));
     },
     enabled: !!id,
   });
