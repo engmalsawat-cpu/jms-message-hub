@@ -380,6 +380,9 @@ export default function PaperDetail() {
   if (!paper) return <p className="p-6">{t("common.noData")}</p>;
 
   const isAuthor = paper.submitted_by === user?.id;
+  const currentStageLabel = paper.workflow_stages
+    ? (isAr ? paper.workflow_stages.name_ar : paper.workflow_stages.name_en)
+    : t(`papers.status.${paper.status}`);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -609,7 +612,7 @@ export default function PaperDetail() {
           <Separator />
           <div className="flex justify-between">
             <span className="text-muted-foreground">{isAr ? "المرحلة الحالية" : "Current Stage"}</span>
-            <span>{paper.workflow_stages ? (isAr ? paper.workflow_stages.name_ar : paper.workflow_stages.name_en) : "-"}</span>
+            <span>{currentStageLabel}</span>
           </div>
           <Separator />
           <div className="flex justify-between">
@@ -759,6 +762,7 @@ export default function PaperDetail() {
           paperId={paper.id}
           paperTitle={isAr ? paper.title_ar : paper.title_en}
           authorId={paper.submitted_by}
+          journalId={paper.journal_id}
         />
       )}
 
