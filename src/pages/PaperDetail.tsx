@@ -625,8 +625,11 @@ export default function PaperDetail() {
       <WorkflowStepper stages={journalStages} currentStageId={paper.current_stage_id} status={paper.status} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sidebar (first in DOM → right side in RTL, left in LTR) */}
+        <div className="lg:order-1">{sidebar}</div>
+
         {/* Main column */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4 lg:order-2">
           <PaperStatusSummary paperId={paper.id} paperStatus={paper.status} isEditor={isEditor} />
 
           {isAuthor && paper.status === "revision_required" && (
@@ -884,8 +887,6 @@ export default function PaperDetail() {
           </Accordion>
         </div>
 
-        {/* Sidebar */}
-        {sidebar}
       </div>
     </div>
   );
